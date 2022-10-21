@@ -1,0 +1,70 @@
+// Star stuff
+
+$solarSystemSpeedThroughUniverse: 500s;
+$numberOfStars: 100; // How many stars you want
+$axisLength--X: 200; // How many rems the star grid goes on the X Axis
+$axisLength--Y: 100; // How many rems the star grid goes on the Y Axis
+$starColor: whitesmoke; // color of the stars
+$space: #100037;
+$base--size: 0.45rem;
+
+
+.stars {
+    display: flex;
+    flex-flow: column;
+    min-height: 100vh;
+    background-color: $space;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    height: 100%;
+}
+
+.stars {
+  z-index: 0;
+  &:before {
+    position: absolute;
+    width: $base--size;
+    height: $base--size;
+    content: '';
+    border-radius: $base--size / 2; }
+  &:before { // stars
+    $boxShadow: 70rem 40rem .08rem -0.02rem $starColor; // I just set up one initial star, then concatinate to it on the loop
+
+    // Loop through and create stars, we devide by two because we create two per loop. One on the -x axis, on on +x;
+    @for $n from 1 through $numberOfStars / 2 {
+      // Set variables for the star when we hit each loop
+      $scale: random(3) * -.05; // Randomize the scale
+      $blur: random(1) / 50;
+      $opacity: random(8) * .1; // Randomize the opacity
+      $adjustedStarColor: rgba($starColor, $opacity);
+      
+      // Here, we define two stars in each loop.. one for the -x margin (left of sun) and one for the right side (positive x)
+      // box-shadow: X-axis Y-axis Blur size (-0.01 -- -0.09) , 
+         $boxShadow: #{$boxShadow} #{","} -#{random($axisLength--X)}rem #{random($axisLength--Y)}rem #{$blur}rem #{$scale}rem $adjustedStarColor , #{random($axisLength--X)}rem #{random($axisLength--Y)}rem #{$blur}rem #{$scale}rem $adjustedStarColor ;
+         $boxShadow: #{$boxShadow} #{","} -#{random($axisLength--X)}rem -#{random($axisLength--Y)}rem #{$blur}rem #{$scale}rem $adjustedStarColor , #{random($axisLength--X)}rem -#{random($axisLength--Y)}rem #{$blur}rem #{$scale}rem $adjustedStarColor ;
+    }
+
+      box-shadow: #{$boxShadow};
+      
+      // Call animation to spin stars
+      -webkit-animation: spin $solarSystemSpeedThroughUniverse linear infinite;
+      -moz-animation: spin $solarSystemSpeedThroughUniverse linear infinite;
+      -ms-animation: spin $solarSystemSpeedThroughUniverse linear infinite;
+      animation: spin $solarSystemSpeedThroughUniverse linear infinite;
+  } // before (stars)
+}
+
+.moon {
+    background-color: lighten(rgb(5, 250, 250), 20%);
+}
+
+//animations
+@-webkit-keyframes spin {
+    from { transform: rotate(0); }
+    to { transform: rotate(360deg); }
+}
+@keyframes spin {
+    from { transform: rotate(0); }
+    to { transform: rotate(360deg); }
+}

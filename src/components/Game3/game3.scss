@@ -1,0 +1,86 @@
+.current-question {
+    margin: 20px auto;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: relative;
+}
+
+.help-icon {
+    background-color: rgb(255, 251, 17);
+    color: #009;
+    border: 0 none;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: -100px;
+    cursor: pointer;
+}
+
+.hint {
+    background-color: rgba(255, 255, 255, 0.25);
+    padding: 20px;
+    max-width: 100%;
+    margin-bottom: 20px;
+}
+
+.icons-row {
+    font-size: 2rem;
+    &:not(:last-child) {
+        font-size: 0.5rem;
+    }
+
+    p {
+        position: relative;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.decision-symbol {
+    span:first-child {
+        font-size: 2.5rem;
+    }
+    span:last-child {
+        font-size: 1.25rem;
+    }
+}
+
+.equals {
+    font-size: 1.25rem;
+    margin: 10px auto;
+}
+
+.answer-input-box {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    text-align: left;
+    margin: 0 auto;
+    width: 100px;
+}
+
+.answer-input {
+    font-size: 2em;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.answer-button {
+    background-color: #900;
+    width: 100%;
+    height: 40px;
+    font-size: 1.5em;
+    color: whitesmoke;
+    cursor: not-allowed;
+}
+
+.correct .answer-button {
+    cursor: pointer;
+    background-color: #090;
+}
