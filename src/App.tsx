@@ -17,10 +17,7 @@ import "./outerspace.scss"; // @TOOD: themed stylesheets for v1
 
 import { useSelector } from "react-redux";
 import { UserState } from "./app/features/userSlice";
-import {
-    faFireFlameCurved,
-    faUserAstronaut,
-} from "@fortawesome/free-solid-svg-icons";
+import { faUserAstronaut } from "@fortawesome/free-solid-svg-icons";
 import { faUserSecret } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 

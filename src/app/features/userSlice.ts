@@ -49,4 +49,21 @@ export const {
 
 export default userSlice.reducer;
 
-export type UserState = any;
+export interface User {
+    uid: string;
+    name: string;
+    winningStreak: number;
+    superStreak: number;
+    dailyStreak: number;
+    lastLoginDate: Date | null;
+    totalCorrectAnswers: number;
+    totalQuestionsAnswered: number;
+    isLoggedIn: boolean;
+    isNewSignUp: boolean;
+}
+
+export interface UserState {
+    user: {
+        currentUser: User;
+    };
+}
