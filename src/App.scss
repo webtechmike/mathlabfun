@@ -42,7 +42,27 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
-.copyright {
+header {
+    position: absolute;
+    right: 40px;
+    top: 40px;
+    
+    a {
+        color: whitesmoke;
+        height: 120px;
+    }
+}
+
+.super-streak-container {
+    margin-bottom: 10px;
+    width: fit-content;
+}
+
+footer {
     position: absolute;
     bottom: 50px;
+
+    .copyright {
+        
+    }
 }

@@ -1,26 +1,74 @@
-import { useState } from "react";
-import { firebaseConfig } from "./.firebaseConfig";
-import Spaceship from "./components/Spaceship";
-import Game4 from "./components/Game4";
-import "./App.css";
-import "./styles.scss";
+import {
+    Navigate,
+    BrowserRouter as Router,
+    Route,
+    Routes,
+    Link,
+} from "react-router-dom";
 
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+import Home from "./components/Home";
+
+import Game4 from "./components/Game4";
+
+import "./App.scss";
+import "./outerspace.scss"; // @TOOD: themed stylesheets for v1
+// import "./floral.scss";
+// import "./mountain.scss";
+
+import { useSelector } from "react-redux";
+import { UserState } from "./app/features/userSlice";
+import {
+    faFireFlameCurved,
+    faUserAstronaut,
+} from "@fortawesome/free-solid-svg-icons";
+import { faUserSecret } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+// type ProtectedRouteProps = ReactFragment & {
+//     isLoggedIn: boolean;
+//     children: ReactNode;
+// };
+// const ProtectedRoute = ({ isLoggedIn, children }: ProtectedRouteProps) => {
+//     if (!isLoggedIn) {
+//         return <Navigate to="/" replace />;
+//     }
+//     return <div>{children}</div>;
+// };
 
 function App() {
+    const { currentUser } = useSelector((state: UserState) => state.user);
     return (
-        <div className="App">
-            <div className="stars">
-                <Spaceship />
-                <Game4 level="1" />
-                <span className="copyright">&copy; Mathlab.fun</span>
-            </div>
+        <div className="App stars">
+            <Router>
+                <header>
+                    <Link to={`${currentUser.isLoggedIn ? "/game" : "/"}`}>
+                        <FontAwesomeIcon
+                            size="2x"
+                            icon={
+                                currentUser.isLoggedIn
+                                    ? faUserAstronaut
+                                    : faUserSecret
+                            }
+                        />
+                    </Link>
+                </header>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route
+                        path="/game"
+                        element={
+                            currentUser.isLoggedIn ? (
+                                <Game4 level="1" />
+                            ) : (
+                                <Navigate to="/" />
+                            )
+                        }
+                    />
+                </Routes>
+                <footer>
+                    <span className="copyright">&copy; Mathlab.fun</span>
+                </footer>
+            </Router>
         </div>
     );
 }

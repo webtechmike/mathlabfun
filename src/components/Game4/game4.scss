@@ -1,9 +1,17 @@
 .current-question {
-    margin: 20px auto;
+    margin: 40px auto;
     display: flex;
     justify-content: space-around;
     align-items: center;
     position: relative;
+
+    h1 {
+        font-size: 6rem;
+        margin: 0;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        font-weight: bold;
+    }
 }
 
 .help-icon {
@@ -11,33 +19,41 @@
     color: #009;
     border: 0 none;
     border-radius: 50%;
-    width: 22px;
-    height: 22px;
-    font-size: 1.25rem;
+    width: 44px;
+    height: 44px;
+    font-size: 2.5rem;
     display: flex;
     justify-content: center;
     align-items: center;
     position: absolute;
-    right: -100px;
+    right: -200px;
     cursor: pointer;
-    margin: 3px;
+    margin: 6px;
 
     &:focus {
         outline: 5px solid rgb(0, 255, 255);
-    }     
+    }
 }
 
 .hint {
     background-color: rgba(255, 255, 255, 0.25);
-    padding: 20px;
+    padding: 40px;
     max-width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
+    font-size: 2rem;
+    color: white;
+
+    .title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
 }
 
 .icons-row {
-    font-size: 2rem;
+    font-size: 4rem;
     &:not(:last-child) {
-        font-size: 0.5rem;
+        font-size: 1rem;
     }
 
     p {
@@ -49,16 +65,16 @@
 
 .decision-symbol {
     span:first-child {
-        font-size: 2.5rem;
+        font-size: 5rem;
     }
     span:last-child {
-        font-size: 1.25rem;
+        font-size: 2.5rem;
     }
 }
 
 .equals {
-    font-size: 1.25rem;
-    margin: 10px auto;
+    font-size: 2.5rem;
+    margin: 20px auto;
 }
 
 .answer-input-box {
@@ -67,20 +83,27 @@
     flex-wrap: wrap;
     text-align: left;
     margin: 0 auto;
-    width: 100px;
+    width: 200px;
+
+    label {
+        font-size: 2rem;
+        color: white;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
 }
 
 .answer-input {
-    font-size: 2em;
+    font-size: 4em;
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
 
 .answer-button {
     background-color: #900;
     width: 100%;
-    height: 40px;
-    font-size: 1.5em;
+    height: 80px;
+    font-size: 3em;
     color: whitesmoke;
     cursor: not-allowed;
 }
@@ -88,4 +111,262 @@
 .correct .answer-button {
     cursor: pointer;
     background-color: #090;
+}
+
+// Super Streak Styles
+.super-streak-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 30px;
+    padding: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    z-index: 1000;
+    min-width: 400px;
+    animation: streakGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes streakGlow {
+    0% {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+            0 0 20px rgba(255, 215, 0, 0.3);
+    }
+    100% {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+            0 0 40px rgba(255, 215, 0, 0.6);
+    }
+}
+
+.streak-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    color: white;
+    font-weight: bold;
+}
+
+.streak-label {
+    font-size: 14px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.streak-count {
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 8px;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ffd700, #ffed4e, #ffd700);
+    border-radius: 6px;
+    transition: width 0.5s ease-in-out;
+    position: relative;
+    overflow: hidden;
+
+    &.overflowing {
+        background: linear-gradient(
+            90deg,
+            #ff6b6b,
+            #ffd700,
+            #4ecdc4,
+            #45b7d1,
+            #96ceb4
+        );
+        background-size: 200% 100%;
+        animation: energyFlow 2s linear infinite;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    }
+}
+
+@keyframes energyFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 200% 50%;
+    }
+}
+
+.energy-particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #ffd700;
+    border-radius: 50%;
+    animation: particleFloat 3s ease-in-out infinite;
+
+    &:nth-child(1) {
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    &:nth-child(2) {
+        top: 60%;
+        left: 30%;
+        animation-delay: 0.5s;
+    }
+
+    &:nth-child(3) {
+        top: 40%;
+        left: 50%;
+        animation-delay: 1s;
+    }
+
+    &:nth-child(4) {
+        top: 80%;
+        left: 70%;
+        animation-delay: 1.5s;
+    }
+
+    &:nth-child(5) {
+        top: 10%;
+        left: 90%;
+        animation-delay: 2s;
+    }
+}
+
+@keyframes particleFloat {
+    0%,
+    100% {
+        transform: translateY(0px) scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateY(-10px) scale(1.2);
+        opacity: 1;
+    }
+}
+
+// Winning Streak Styles
+.winning-streak-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    z-index: 1000;
+    min-width: 250px;
+    animation: streakPulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes streakPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+            0 0 20px rgba(255, 107, 107, 0.4);
+    }
+    100% {
+        transform: scale(1.0125);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
+            0 0 40px rgba(255, 107, 107, 0.8);
+    }
+}
+
+.streak-fire {
+    font-size: 3rem;
+    color: #ff6b6b;
+    text-align: center;
+    margin-bottom: 10px;
+    animation: fireFlicker 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes fireFlicker {
+    0% {
+        transform: scale(1) rotate(-1deg);
+        color: #ff6b6b;
+    }
+    100% {
+        transform: scale(1.1) rotate(1deg);
+        color: #ffd93d;
+    }
+}
+
+.winning-streak-container .streak-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    color: white;
+    font-weight: bold;
+}
+
+.winning-streak-container .streak-label {
+    font-size: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.winning-streak-container .streak-count {
+    font-size: 2rem;
+    background: rgba(255, 255, 255, 0.3);
+    padding: 8px 16px;
+    border-radius: 15px;
+    backdrop-filter: blur(5px);
+    font-weight: bold;
+}
+
+.streak-answers {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.correct-answer-badge {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #4ecdc4, #44a08d);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: badgePop 0.3s ease-out;
+}
+
+@keyframes badgePop {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
 }

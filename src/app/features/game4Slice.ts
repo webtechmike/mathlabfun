@@ -43,6 +43,12 @@ export const game4Slice = createSlice({
         setCorrect: (state, action) => {
             state.correct = action.payload;
         },
+        setSuperStreak: (state, action) => {
+            state.superStreak = action.payload;
+        },
+        setWinningStreak: (state, action) => {
+            state.winningStreak = action.payload;
+        },
     },
 });
 
@@ -54,6 +60,7 @@ export const {
     setShowHint,
     setHelpCount,
     setCorrect,
+    setWinningStreak,
 } = game4Slice.actions;
 
 export default game4Slice.reducer;

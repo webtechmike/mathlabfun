@@ -1,16 +1,65 @@
 .spaceship {
     transform: scale(1.2);
     animation: teetertotter 20s linear infinite;
-    width: 100px;
-    height: 75px;
+    width: 425px;
+    height: 125px;
     position: relative;
 
     .helmet {
-        background-color: lighten(rgba(50, 215, 215, 0.60), 35%);
+        background-color: lighten(rgba(50, 215, 215, 0.6), 35%);
         border-radius: 50% 50% 0 0;
-        width: 40%;
+        width: 70%;
         height: 40%;
-        animation: oscillate 12s linear infinite;
+        animation: oscillate 20s linear infinite;
+        position: relative;
+        overflow: hidden;
+
+        &::after {
+            content: "";
+            position: absolute;
+            top: 60%;
+            left: 5%;
+            width: 90%;
+            height: 2px;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.1) 20%,
+                rgba(255, 255, 255, 0.3) 30%,
+                rgba(255, 255, 255, 0.6) 40%,
+                rgba(255, 255, 255, 0.8) 50%,
+                rgba(255, 255, 255, 0.6) 60%,
+                rgba(255, 255, 255, 0.3) 70%,
+                rgba(255, 255, 255, 0.1) 80%,
+                transparent 100%
+            );
+            border-radius: 1px;
+            animation: lightSweep 3s linear infinite;
+        }
+
+        &::before {
+            content: "";
+            position: absolute;
+            top: 60%;
+            left: 5%;
+            width: 90%;
+            height: 2px;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(173, 216, 230, 0.1) 25%,
+                rgba(173, 216, 230, 0.4) 35%,
+                rgba(173, 216, 230, 0.7) 45%,
+                rgba(173, 216, 230, 1) 55%,
+                rgba(173, 216, 230, 0.7) 65%,
+                rgba(173, 216, 230, 0.4) 75%,
+                rgba(173, 216, 230, 0.1) 85%,
+                transparent 100%
+            );
+            border-radius: 1px;
+            animation: lightSweep 3s linear infinite reverse;
+            animation-delay: 1.5s;
+        }
     }
     .cargo {
         box-shadow: 0 0 25px 5px #ccf;
@@ -29,13 +78,37 @@
 }
 
 @keyframes oscillate {
-    0% {transform: translate(30%)}
-    50% {transform: translate(120%)}
-    100% {transform: translate(30%)}
+    0% {
+        transform: translate(-10%);
+        width: 425px;
+    }
+    50% {
+        transform: translate(10%);
+        width: 525px;
+    }
+    100% {
+        transform: translate(-10%);
+        width: 425px;
+    }
 }
 
 @keyframes teetertotter {
-    0%{transform: rotate(-10deg);}
-    50%{transform: rotate(8deg);}
-    100%{transform: rotate(-10deg);}
+    0% {
+        transform: rotate(-3deg);
+    }
+    50% {
+        transform: rotate(3deg);
+    }
+    100% {
+        transform: rotate(-3deg);
+    }
+}
+
+@keyframes lightSweep {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
 }
