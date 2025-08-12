@@ -34,21 +34,47 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function App() {
     const { currentUser } = useSelector((state: UserState) => state.user);
+
+    const renderUserHeader = () => {
+        if (!currentUser.isLoggedIn) {
+            return (
+                <Link to="/">
+                    <FontAwesomeIcon size="2x" icon={faUserSecret} />
+                </Link>
+            );
+        }
+
+        const isDoubleRewards = currentUser.dailyStreak >= 3;
+        const rewardStatus = isDoubleRewards
+            ? "Double Rewards"
+            : "Regular Rewards";
+        const rewardIcon = isDoubleRewards ? "🚀" : "⭐";
+
+        return (
+            <div className="user-header">
+                <div className="user-info">
+                    <div className="streak-info">
+                        <span className="streak-label">🔥 SuperStreak</span>
+                        <span className="streak-count">
+                            {currentUser.superStreak}
+                        </span>
+                    </div>
+                    <div className="reward-status">
+                        <span className="reward-icon">{rewardIcon}</span>
+                        <span className="reward-text">{rewardStatus}</span>
+                    </div>
+                </div>
+                <Link to="/game">
+                    <FontAwesomeIcon size="2x" icon={faUserAstronaut} />
+                </Link>
+            </div>
+        );
+    };
+
     return (
         <div className="App stars">
             <Router>
-                <header>
-                    <Link to={`${currentUser.isLoggedIn ? "/game" : "/"}`}>
-                        <FontAwesomeIcon
-                            size="2x"
-                            icon={
-                                currentUser.isLoggedIn
-                                    ? faUserAstronaut
-                                    : faUserSecret
-                            }
-                        />
-                    </Link>
-                </header>
+                <header>{renderUserHeader()}</header>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route
