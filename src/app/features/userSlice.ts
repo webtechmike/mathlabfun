@@ -6,6 +6,7 @@ export const userSlice = createSlice({
         currentUser: {
             uid: "",
             name: "",
+            email: "",
             scoreStreak: 0, // Current consecutive correct answers
             bestScoreStreak: 0, // Best streak ever achieved
             superStreak: 0,
@@ -82,6 +83,7 @@ export default userSlice.reducer;
 export interface User {
     uid: string;
     name: string;
+    email: string;
     scoreStreak: number;
     bestScoreStreak: number;
     superStreak: number;

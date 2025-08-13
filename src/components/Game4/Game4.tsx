@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useFocus } from "../../hooks";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -6,12 +6,13 @@ import {
     setRealAnswer,
     setCurrentAnswer,
     setDecision,
-    setShowHint,
-    setHelpCount,
     setCorrect,
     setScoreStreak,
+    setShowHint,
+    setHelpCount,
 } from "../../app/features/game4Slice";
 import {
+    updateBestScoreStreak,
     addSpacebucks,
     updateTotalCorrectAnswers,
     updateTotalQuestionsAnswered,
@@ -20,19 +21,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCircleQuestion,
     faFireFlameCurved,
+    faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import {
     updateUserScoreStreak,
     addSpacebucksToUser,
     updateUserStats,
 } from "../../services/firebase";
-
 import "./game4.scss";
 import Spaceship from "../Spaceship";
 
 type GameProps = {
     level: string;
 };
+
 function Game4(props: GameProps) {
     // TODOS:
     // 2. PINNING THIS -> Create themes (i.e. outerspace, floral, mountain)
@@ -47,11 +49,15 @@ function Game4(props: GameProps) {
     const [questionReset, setQuestionReset] = useState<boolean>(false);
     const [lastQuestion, setLastQuestion] = useState<string>("");
     const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
+    const [timeLeft, setTimeLeft] = useState(30);
+    const [isTimerRunning, setIsTimerRunning] = useState(false);
+
     const dispatch = useDispatch();
     const resetFocus = useFocus("answer"); // resets cursor focus to input with id "answer"
 
     // Use ref to store current user data to avoid dependency issues
     const currentUserRef = useRef<any>(null);
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     const {
         currentQuestion,
@@ -65,6 +71,54 @@ function Game4(props: GameProps) {
     } = useSelector((state: any) => state.game);
 
     const { currentUser } = useSelector((state: any) => state.user);
+
+    // Timer effect
+    useEffect(() => {
+        if (isTimerRunning && timeLeft > 0) {
+            timerRef.current = setTimeout(() => {
+                setTimeLeft((prev) => prev - 1);
+            }, 1000);
+        } else if (timeLeft === 0 && isTimerRunning) {
+            // Time's up! Reset score streak but preserve best score
+            setIsTimerRunning(false);
+            if (currentUserRef.current?.isLoggedIn) {
+                dispatch(setScoreStreak(0));
+                // Update Firebase to reset score streak
+                updateUserScoreStreak(
+                    currentUserRef.current.uid,
+                    0,
+                    currentUserRef.current.bestScoreStreak || 0
+                );
+            }
+            // Set a flag to generate new question on next render
+            setQuestionReset(false);
+        }
+
+        return () => {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+            }
+        };
+    }, [isTimerRunning, timeLeft, dispatch]);
+
+    // Start timer when new question is generated
+    const startTimer = useCallback(() => {
+        setTimeLeft(30);
+        setIsTimerRunning(true);
+    }, []);
+
+    // Stop timer when answer is submitted
+    const stopTimer = useCallback(() => {
+        setIsTimerRunning(false);
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+        }
+    }, []);
+
+    // Debug: Log current user data
+    useEffect(() => {
+        // Removed debugging logs for performance
+    }, [currentUser]);
 
     // Update ref when currentUser changes
     useEffect(() => {
@@ -139,8 +193,11 @@ function Game4(props: GameProps) {
         setLastQuestion(questionString);
         dispatch(setCurrentQuestion(newQuestion));
 
+        // Explicitly restart timer for new question
+        startTimer();
+
         return newQuestion;
-    }, [lastQuestion, dispatch]);
+    }, [lastQuestion, dispatch, startTimer]);
 
     const generateHint = (answer: string) => {
         const theAnswer = parseInt(answer);
@@ -181,8 +238,8 @@ function Game4(props: GameProps) {
     const calculateReward = (
         operation: string,
         isSuperStreakActive: boolean
-    ) => {
-        let baseReward = 0;
+    ): number => {
+        let baseReward: number;
 
         switch (operation) {
             case "addition":
@@ -211,6 +268,9 @@ function Game4(props: GameProps) {
         async (currentDecision: string) => {
             if (!currentUserRef.current.isLoggedIn) return;
 
+            // Stop timer when answer is submitted
+            stopTimer();
+
             const newScoreStreak = scoreStreak + 1;
             const currentBestStreak =
                 currentUserRef.current.bestScoreStreak || 0;
@@ -234,6 +294,7 @@ function Game4(props: GameProps) {
 
             // Update local state in batch
             dispatch(setScoreStreak(updates.scoreStreak));
+            dispatch(updateBestScoreStreak(updates.bestScoreStreak));
             dispatch(addSpacebucks(reward));
             dispatch(updateTotalCorrectAnswers(updates.totalCorrectAnswers));
             dispatch(
@@ -251,17 +312,16 @@ function Game4(props: GameProps) {
                 totalCorrectAnswers: updates.totalCorrectAnswers,
                 totalQuestionsAnswered: updates.totalQuestionsAnswered,
             });
-
-            console.log(
-                `🎉 Correct! Earned ${reward} spacebucks! Score streak: ${newScoreStreak} (Best: ${newBestStreak})`
-            );
         },
-        [scoreStreak, dispatch]
+        [scoreStreak, dispatch, stopTimer]
     );
 
     // Handle wrong answer
     const handleWrongAnswer = useCallback(async () => {
         if (!currentUserRef.current.isLoggedIn) return;
+
+        // Stop timer when answer is submitted
+        stopTimer();
 
         const newTotalQuestions =
             (currentUserRef.current.totalQuestionsAnswered || 0) + 1;
@@ -280,11 +340,7 @@ function Game4(props: GameProps) {
         await updateUserStats(currentUserRef.current.uid, {
             totalQuestionsAnswered: newTotalQuestions,
         });
-
-        console.log(
-            `❌ Wrong answer. Score streak reset to 0. (Best streak: ${currentBestStreak})`
-        );
-    }, [dispatch]);
+    }, [dispatch, stopTimer]);
 
     // Create a simple question generator without dependencies
     const createInitialQuestion = useCallback(() => {
@@ -337,6 +393,8 @@ function Game4(props: GameProps) {
                 createInitialQuestion();
             }
             setQuestionReset(true);
+            // Start timer for initial question
+            startTimer();
         }
     }, [
         currentQuestion,
@@ -344,7 +402,20 @@ function Game4(props: GameProps) {
         questionReset,
         resetFocus,
         createInitialQuestion,
+        startTimer,
     ]);
+
+    // Start timer when a new question is generated
+    useEffect(() => {
+        if (
+            currentQuestion &&
+            currentQuestion.input1 !== undefined &&
+            questionReset
+        ) {
+            startTimer();
+        }
+    }, [currentQuestion, questionReset, startTimer]);
+
     useEffect(() => {
         dispatch(
             setCorrect(currentAnswer !== "" && currentAnswer === realAnswer)
@@ -373,8 +444,6 @@ function Game4(props: GameProps) {
 
     // Render score streak display
     const renderScoreStreak = () => {
-        if (scoreStreak === 0) return null;
-
         return (
             <div className="score-streak-container">
                 <div className="streak-header">
@@ -385,6 +454,22 @@ function Game4(props: GameProps) {
                 <div className="best-streak-info">
                     <span className="best-streak-label">
                         🏆 Best: {currentUser.bestScoreStreak || 0}
+                    </span>
+                </div>
+                {/* Timer Component */}
+                <div className="timer-section">
+                    <FontAwesomeIcon icon={faClock} className="timer-icon" />
+                    <span className="timer-text">Time:</span>
+                    <span
+                        className={`timer-countdown ${
+                            timeLeft <= 10
+                                ? "critical"
+                                : timeLeft <= 15
+                                ? "warning"
+                                : ""
+                        }`}
+                    >
+                        {timeLeft}s
                     </span>
                 </div>
             </div>

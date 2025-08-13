@@ -22,6 +22,7 @@ import {
     checkAndUpdateDailyStreak,
     getUserData,
     signInWithGoogle,
+    migrateUserData,
 } from "../../services/firebase";
 
 import "./login.scss";
@@ -40,16 +41,31 @@ function Login() {
             const user = auth.currentUser;
             if (user) {
                 const streakData = await checkAndUpdateDailyStreak(user.uid);
-                const userData = await getUserData(user.uid);
 
-                dispatch(
-                    setCurrentUser({
-                        ...user,
-                        ...userData,
-                        dailyStreak: streakData.dailyStreak,
-                        superStreak: streakData.superStreak,
-                    })
+                // Migrate user data if needed (for existing users without bestScoreStreak)
+                await migrateUserData(user.uid);
+
+                const userData = await getUserData(user.uid);
+                console.log(
+                    "Loaded user data from Firebase (Google):",
+                    userData
                 );
+
+                const userStateToDispatch = {
+                    uid: user.uid,
+                    name: user.displayName || "",
+                    email: user.email || "",
+                    isLoggedIn: true,
+                    ...userData,
+                    dailyStreak: streakData.dailyStreak,
+                    superStreak: streakData.superStreak,
+                };
+                console.log(
+                    "Dispatching to Redux (Google):",
+                    userStateToDispatch
+                );
+
+                dispatch(setCurrentUser(userStateToDispatch));
                 dispatch(setIsLoggedIn(true));
                 navigate("/game");
             }
@@ -90,17 +106,25 @@ function Login() {
                         user.uid
                     );
 
+                    // Migrate user data if needed (for existing users without bestScoreStreak)
+                    await migrateUserData(user.uid);
+
                     // Get full user data including spacebucks
                     const userData = await getUserData(user.uid);
+                    console.log("Loaded user data from Firebase:", userData);
 
-                    dispatch(
-                        setCurrentUser({
-                            ...user,
-                            ...userData,
-                            dailyStreak: streakData.dailyStreak,
-                            superStreak: streakData.superStreak,
-                        })
-                    );
+                    const userStateToDispatch = {
+                        uid: user.uid,
+                        name: user.displayName || "",
+                        email: user.email || "",
+                        isLoggedIn: true,
+                        ...userData,
+                        dailyStreak: streakData.dailyStreak,
+                        superStreak: streakData.superStreak,
+                    };
+                    console.log("Dispatching to Redux:", userStateToDispatch);
+
+                    dispatch(setCurrentUser(userStateToDispatch));
                     dispatch(setIsLoggedIn(true));
 
                     navigate("/game"); // Redirect to dashboard after successful signup
@@ -134,17 +158,25 @@ function Login() {
                         user.uid
                     );
 
+                    // Migrate user data if needed (for existing users without bestScoreStreak)
+                    await migrateUserData(user.uid);
+
                     // Get full user data including spacebucks
                     const userData = await getUserData(user.uid);
+                    console.log("Loaded user data from Firebase:", userData);
 
-                    dispatch(
-                        setCurrentUser({
-                            ...user,
-                            ...userData,
-                            dailyStreak: streakData.dailyStreak,
-                            superStreak: streakData.superStreak,
-                        })
-                    );
+                    const userStateToDispatch = {
+                        uid: user.uid,
+                        name: user.displayName || "",
+                        email: user.email || "",
+                        isLoggedIn: true,
+                        ...userData,
+                        dailyStreak: streakData.dailyStreak,
+                        superStreak: streakData.superStreak,
+                    };
+                    console.log("Dispatching to Redux:", userStateToDispatch);
+
+                    dispatch(setCurrentUser(userStateToDispatch));
                     dispatch(setIsLoggedIn(true));
 
                     navigate("/game"); // Redirect to dashboard after successful login
@@ -171,14 +203,29 @@ function Login() {
     }, [currentUser.isNewSignUp, dispatch]);
 
     useEffect(() => {
-        onAuthStateChanged(auth, (user: any) => {
+        onAuthStateChanged(auth, async (user: any) => {
             console.log(
                 "🚀 ~ file: App.tsx ~ line 68 ~ onAuthStateChanged ~ user",
                 user
             );
             if (user) {
-                dispatch(setCurrentUser(user));
-                dispatch(setIsLoggedIn(true));
+                // Load full user data including streaks and spacebucks
+                const userData = await getUserData(user.uid);
+                console.log("Auth state changed - loaded user data:", userData);
+
+                const userStateToDispatch = {
+                    uid: user.uid,
+                    name: user.displayName || "",
+                    email: user.email || "",
+                    isLoggedIn: true,
+                    ...userData,
+                };
+                console.log(
+                    "Dispatching to Redux (Auth State):",
+                    userStateToDispatch
+                );
+
+                dispatch(setCurrentUser(userStateToDispatch));
             } else {
                 dispatch(setIsLoggedIn(false));
             }

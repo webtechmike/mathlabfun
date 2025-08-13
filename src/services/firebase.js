@@ -263,10 +263,75 @@ const getUserData = async (userId) => {
             return null;
         }
 
-        return querySnapshot.docs[0].data();
+        const userData = querySnapshot.docs[0].data();
+        console.log("Raw Firebase user data:", userData);
+        console.log("bestScoreStreak in Firebase:", userData.bestScoreStreak);
+
+        // Ensure bestScoreStreak exists, default to 0 if not present
+        if (userData.bestScoreStreak === undefined) {
+            userData.bestScoreStreak = 0;
+            console.log("bestScoreStreak was undefined, set to 0");
+        }
+
+        return userData;
     } catch (error) {
         console.error("Error getting user data:", error);
         return null;
+    }
+};
+
+const migrateUserData = async (userId) => {
+    try {
+        const q = query(collection(db, "users"), where("uid", "==", userId));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            console.log("No user document found for migration");
+            return false;
+        }
+
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
+        console.log("Migration check - user data:", userData);
+        console.log(
+            "bestScoreStreak exists:",
+            userData.bestScoreStreak !== undefined
+        );
+
+        // If bestScoreStreak doesn't exist, we need to migrate this user
+        if (userData.bestScoreStreak === undefined) {
+            console.log("Migrating user data for:", userId);
+
+            // For existing users, we'll set bestScoreStreak to their totalCorrectAnswers
+            // as a reasonable starting point (they likely had some streak)
+            const estimatedBestStreak = Math.max(
+                1,
+                Math.floor(userData.totalCorrectAnswers / 2)
+            );
+
+            console.log("Setting bestScoreStreak to:", estimatedBestStreak);
+
+            await updateDoc(userDoc.ref, {
+                bestScoreStreak: estimatedBestStreak,
+                scoreStreak: 0, // Reset current streak
+            });
+
+            console.log(
+                "Migration completed. Set bestScoreStreak to:",
+                estimatedBestStreak
+            );
+            return true;
+        } else {
+            console.log(
+                "User already has bestScoreStreak:",
+                userData.bestScoreStreak
+            );
+        }
+
+        return false;
+    } catch (error) {
+        console.error("Error migrating user data:", error);
+        return false;
     }
 };
 
@@ -284,4 +349,5 @@ export {
     addSpacebucksToUser,
     updateUserStats,
     getUserData,
+    migrateUserData,
 };

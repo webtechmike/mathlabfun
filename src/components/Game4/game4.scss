@@ -272,18 +272,79 @@
 
 // Score Streak Styles
 .score-streak-container {
-    position: fixed;
+    position: absolute;
     top: 20px;
     left: 20px;
-    background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 100%);
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    border: 3px solid rgba(255, 255, 255, 0.3);
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    padding: 15px;
+    color: white;
+    font-weight: bold;
     z-index: 1000;
-    min-width: 250px;
-    animation: streakPulse 1.5s ease-in-out infinite alternate;
+    min-width: 150px;
+
+    .streak-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-size: 14px;
+
+        .streak-label {
+            font-weight: bold;
+        }
+    }
+
+    .streak-count {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+
+    .best-streak-info {
+        margin-bottom: 12px;
+
+        .best-streak-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+    }
+
+    .timer-section {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+
+        .timer-icon {
+            color: #ff6b6b;
+            font-size: 14px;
+        }
+
+        .timer-text {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .timer-countdown {
+            font-size: 14px;
+            font-weight: bold;
+            min-width: 25px;
+            text-align: center;
+
+            &.warning {
+                color: #ff6b6b;
+                animation: pulse 1s infinite;
+            }
+
+            &.critical {
+                color: #ff0000;
+                animation: pulse 0.5s infinite;
+            }
+        }
+    }
 }
 
 @keyframes streakPulse {
@@ -348,4 +409,16 @@
     padding: 4px 8px;
     border-radius: 8px;
     border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
 }
