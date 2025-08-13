@@ -209,6 +209,30 @@ function Login() {
                 user
             );
             if (user) {
+                // Check if we already have user data in Redux (from persistence)
+                if (currentUser.uid === user.uid && currentUser.isLoggedIn) {
+                    console.log(
+                        "User data already persisted, syncing with Firebase..."
+                    );
+
+                    // Sync persisted data with Firebase to ensure it's up-to-date
+                    const streakData = await checkAndUpdateDailyStreak(
+                        user.uid
+                    );
+                    const userData = await getUserData(user.uid);
+
+                    // Update Redux with the latest data from Firebase
+                    const updatedUserState = {
+                        ...currentUser,
+                        ...userData,
+                        dailyStreak: streakData.dailyStreak,
+                        superStreak: streakData.superStreak,
+                    };
+
+                    dispatch(setCurrentUser(updatedUserState));
+                    return;
+                }
+
                 // Load full user data including streaks and spacebucks
                 const userData = await getUserData(user.uid);
                 console.log("Auth state changed - loaded user data:", userData);
@@ -230,7 +254,7 @@ function Login() {
                 dispatch(setIsLoggedIn(false));
             }
         });
-    }, [dispatch]);
+    }, [dispatch, currentUser.uid, currentUser.isLoggedIn]);
 
     return (
         <div className="login">

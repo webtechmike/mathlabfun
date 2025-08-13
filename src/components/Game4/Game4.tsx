@@ -58,6 +58,7 @@ function Game4(props: GameProps) {
     // Use ref to store current user data to avoid dependency issues
     const currentUserRef = useRef<any>(null);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const answeredQuestionRef = useRef<any>(null);
 
     const {
         currentQuestion,
@@ -131,8 +132,9 @@ function Game4(props: GameProps) {
         const maxAttempts = 50; // Prevent infinite loops
 
         do {
-            const input1 = Math.floor(Math.random() * 11);
-            const input2 = Math.floor(Math.random() * 11);
+            // Generate numbers from -10 to 10 to include negative numbers
+            const input1 = Math.floor(Math.random() * 21) - 10;
+            const input2 = Math.floor(Math.random() * 21) - 10;
             const decider = Math.floor(Math.random() * 101);
 
             const decide = (decidedBy: number): string => {
@@ -237,9 +239,15 @@ function Game4(props: GameProps) {
     // Calculate spacebucks reward based on operation type and streak status
     const calculateReward = (
         operation: string,
-        isSuperStreakActive: boolean
+        isSuperStreakActive: boolean,
+        currentQuestion: any
     ): number => {
         let baseReward: number;
+
+        console.log("🔍 Spacebucks Calculation Debug:");
+        console.log("Operation:", operation);
+        console.log("Super Streak Active:", isSuperStreakActive);
+        console.log("Question:", currentQuestion);
 
         switch (operation) {
             case "addition":
@@ -251,21 +259,40 @@ function Game4(props: GameProps) {
             case "multiplication":
                 baseReward = 3; // 3 spacebucks for multiplication
                 break;
+            case "division":
+                baseReward = 3; // 3 spacebucks for division
+                break;
             default:
                 baseReward = 1;
+        }
+
+        console.log("Base reward:", baseReward);
+
+        // Add extra spacebuck if the problem includes negative numbers
+        if (
+            currentQuestion &&
+            (currentQuestion.input1 < 0 || currentQuestion.input2 < 0)
+        ) {
+            baseReward += 1;
+            console.log(
+                "Negative number bonus applied! New total:",
+                baseReward
+            );
         }
 
         // Double rewards if super streak is active (dailyStreak >= 3)
         if (isSuperStreakActive) {
             baseReward *= 2;
+            console.log("Super streak bonus applied! Final total:", baseReward);
         }
 
+        console.log("Final spacebucks reward:", baseReward);
         return baseReward;
     };
 
     // Handle correct answer and rewards
     const handleCorrectAnswer = useCallback(
-        async (currentDecision: string) => {
+        async (currentDecision: string, answeredQuestion: any) => {
             if (!currentUserRef.current.isLoggedIn) return;
 
             // Stop timer when answer is submitted
@@ -276,9 +303,16 @@ function Game4(props: GameProps) {
                 currentUserRef.current.bestScoreStreak || 0;
             const newBestStreak = Math.max(currentBestStreak, newScoreStreak);
             const isSuperStreakActive = currentUserRef.current.dailyStreak >= 3;
+            console.log("🎯 Answer Debug:");
+            console.log("Current Decision:", currentDecision);
+            console.log("Super Streak Active:", isSuperStreakActive);
+            console.log("Daily Streak:", currentUserRef.current.dailyStreak);
+            console.log("Answered Question:", answeredQuestion);
+
             const reward = calculateReward(
                 currentDecision,
-                isSuperStreakActive
+                isSuperStreakActive,
+                answeredQuestion
             );
 
             // Batch state updates to prevent cascading re-renders
@@ -430,7 +464,7 @@ function Game4(props: GameProps) {
         if (!hasSubmitted) return;
 
         if (correct) {
-            handleCorrectAnswer(decision);
+            handleCorrectAnswer(decision, answeredQuestionRef.current);
         } else if (currentAnswer !== "") {
             handleWrongAnswer();
         }
@@ -547,6 +581,8 @@ function Game4(props: GameProps) {
                         onSubmit={(e) => {
                             e.preventDefault();
                             setHasSubmitted(true);
+                            // Store the current question before generating a new one
+                            answeredQuestionRef.current = currentQuestion;
                             generateQuestion();
                             dispatch(setCurrentAnswer(""));
                         }}

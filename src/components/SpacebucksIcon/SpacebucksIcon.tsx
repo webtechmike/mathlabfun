@@ -34,6 +34,12 @@ function SpacebucksIcon() {
                             </span>
                             <span className="reward">3 spacebucks</span>
                         </div>
+                        <div className="rule">
+                            <span className="operation">
+                                🔢 Negative Numbers:
+                            </span>
+                            <span className="reward">+1 bonus spacebuck</span>
+                        </div>
                     </div>
                     <div className="super-streak-info">
                         <h4>🚀 SuperStreak Bonus</h4>

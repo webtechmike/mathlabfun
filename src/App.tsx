@@ -20,6 +20,7 @@ import { UserState } from "./app/features/userSlice";
 import { faUserAstronaut } from "@fortawesome/free-solid-svg-icons";
 import { faUserSecret } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import SpacebucksIcon from "./components/SpacebucksIcon/SpacebucksIcon";
 
 // type ProtectedRouteProps = ReactFragment & {
 //     isLoggedIn: boolean;
@@ -54,7 +55,7 @@ function App() {
             <div className="user-header">
                 <div className="user-info">
                     <div className="spacebucks-info">
-                        <span className="spacebucks-icon">💫</span>
+                        <SpacebucksIcon />
                         <span className="spacebucks-count">
                             {currentUser.spacebucks || 0}
                         </span>
