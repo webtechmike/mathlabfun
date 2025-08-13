@@ -3,11 +3,10 @@ import {
     GoogleAuthProvider,
     getAuth,
     signInWithPopup,
-    signInwWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
     sendPasswordResetEmail,
     signOut,
-    signInWithEmailAndPassword,
 } from "firebase/auth";
 import {
     getFirestore,
@@ -16,10 +15,7 @@ import {
     collection,
     where,
     addDoc,
-    doc,
-    getDoc,
     updateDoc,
-    setDoc,
 } from "firebase/firestore";
 import { firebaseConfig } from "../.firebaseConfig";
 
@@ -42,9 +38,12 @@ const signInWithGoogle = async () => {
                 email: user.email,
                 dailyStreak: 0,
                 superStreak: 0,
+                scoreStreak: 0,
+                bestScoreStreak: 0,
                 lastLoginDate: null,
                 totalCorrectAnswers: 0,
                 totalQuestionsAnswered: 0,
+                spacebucks: 0,
             });
         } else {
             // Update existing user's streak data
@@ -138,14 +137,16 @@ const checkAndUpdateDailyStreak = async (userId) => {
         } else if (lastLogin !== null) {
             // User missed a day, reset streak
             newDailyStreak = 1;
+            newSuperStreak = 0; // Reset super streak when daily streak is broken
         } else {
             // First time login
             newDailyStreak = 1;
         }
 
-        // Check if super streak should be activated (3+ days)
+        // Super streak is activated when daily streak reaches 3
+        // and continues as long as daily streak is maintained
         if (newDailyStreak >= 3) {
-            newSuperStreak = Math.max(newSuperStreak, newDailyStreak);
+            newSuperStreak = newDailyStreak;
         }
 
         // Update user document using the document ID
@@ -183,6 +184,92 @@ const getUserStreakData = async (userId) => {
     }
 };
 
+// Spacebucks and Score Streak Functions
+const updateUserScoreStreak = async (userId, scoreStreak, bestScoreStreak) => {
+    try {
+        const q = query(collection(db, "users"), where("uid", "==", userId));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            console.log("User document not found");
+            return false;
+        }
+
+        const userDoc = querySnapshot.docs[0];
+        await updateDoc(userDoc.ref, {
+            scoreStreak: scoreStreak,
+            bestScoreStreak: bestScoreStreak,
+        });
+
+        return true;
+    } catch (error) {
+        console.error("Error updating score streak:", error);
+        return false;
+    }
+};
+
+const addSpacebucksToUser = async (userId, amount) => {
+    try {
+        const q = query(collection(db, "users"), where("uid", "==", userId));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            console.log("User document not found");
+            return false;
+        }
+
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
+        const currentSpacebucks = userData.spacebucks || 0;
+        const newSpacebucks = currentSpacebucks + amount;
+
+        await updateDoc(userDoc.ref, {
+            spacebucks: newSpacebucks,
+        });
+
+        return newSpacebucks;
+    } catch (error) {
+        console.error("Error adding spacebucks:", error);
+        return false;
+    }
+};
+
+const updateUserStats = async (userId, stats) => {
+    try {
+        const q = query(collection(db, "users"), where("uid", "==", userId));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            console.log("User document not found");
+            return false;
+        }
+
+        const userDoc = querySnapshot.docs[0];
+        await updateDoc(userDoc.ref, stats);
+
+        return true;
+    } catch (error) {
+        console.error("Error updating user stats:", error);
+        return false;
+    }
+};
+
+const getUserData = async (userId) => {
+    try {
+        const q = query(collection(db, "users"), where("uid", "==", userId));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            return null;
+        }
+
+        return querySnapshot.docs[0].data();
+    } catch (error) {
+        console.error("Error getting user data:", error);
+        return null;
+    }
+};
+
 export {
     auth,
     db,
@@ -193,4 +280,8 @@ export {
     logout,
     checkAndUpdateDailyStreak,
     getUserStreakData,
+    updateUserScoreStreak,
+    addSpacebucksToUser,
+    updateUserStats,
+    getUserData,
 };

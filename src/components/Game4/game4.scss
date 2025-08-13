@@ -140,26 +140,33 @@
     }
 }
 
-.streak-info {
+.streak-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 8px;
     margin-bottom: 10px;
     color: white;
     font-weight: bold;
 }
 
+.streak-header .fa-fire-flame-curved {
+    font-size: 2rem;
+    color: #ff6b6b;
+    animation: fireFlicker 2.5s ease-in-out infinite alternate;
+}
+
 .streak-label {
-    font-size: 14px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    font-size: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .streak-count {
-    font-size: 16px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 4px 8px;
-    border-radius: 8px;
-    backdrop-filter: blur(5px);
+    font-size: 3rem;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .progress-bar-container {
@@ -263,8 +270,8 @@
     }
 }
 
-// Winning Streak Styles
-.winning-streak-container {
+// Score Streak Styles
+.score-streak-container {
     position: fixed;
     top: 20px;
     left: 20px;
@@ -292,14 +299,6 @@
     }
 }
 
-.streak-fire {
-    font-size: 3rem;
-    color: #ff6b6b;
-    text-align: center;
-    margin-bottom: 10px;
-    animation: fireFlicker 2.5s ease-in-out infinite alternate;
-}
-
 @keyframes fireFlicker {
     0% {
         transform: scale(1) rotate(-1deg);
@@ -311,7 +310,7 @@
     }
 }
 
-.winning-streak-container .streak-info {
+.score-streak-container .streak-info {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -320,12 +319,12 @@
     font-weight: bold;
 }
 
-.winning-streak-container .streak-label {
+.score-streak-container .streak-label {
     font-size: 1.5rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.winning-streak-container .streak-count {
+.score-streak-container .streak-count {
     font-size: 2rem;
     background: rgba(255, 255, 255, 0.3);
     padding: 8px 16px;
@@ -334,39 +333,19 @@
     font-weight: bold;
 }
 
-.streak-answers {
+.best-streak-info {
     display: flex;
-    gap: 8px;
     justify-content: center;
-    flex-wrap: wrap;
+    margin-bottom: 10px;
 }
 
-.correct-answer-badge {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, #4ecdc4, #44a08d);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.5rem;
+.best-streak-label {
+    font-size: 1rem;
+    color: #ffd700;
     font-weight: bold;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    animation: badgePop 0.3s ease-out;
-}
-
-@keyframes badgePop {
-    0% {
-        transform: scale(0) rotate(-180deg);
-        opacity: 0;
-    }
-    50% {
-        transform: scale(1.2) rotate(0deg);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(1) rotate(0deg);
-        opacity: 1;
-    }
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    background: rgba(255, 215, 0, 0.1);
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
 }

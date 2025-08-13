@@ -53,10 +53,16 @@ function App() {
         return (
             <div className="user-header">
                 <div className="user-info">
+                    <div className="spacebucks-info">
+                        <span className="spacebucks-icon">💫</span>
+                        <span className="spacebucks-count">
+                            {currentUser.spacebucks || 0}
+                        </span>
+                    </div>
                     <div className="streak-info">
                         <span className="streak-label">🔥 SuperStreak</span>
                         <span className="streak-count">
-                            {currentUser.superStreak}
+                            {currentUser.superStreak || 0}
                         </span>
                     </div>
                     <div className="reward-status">

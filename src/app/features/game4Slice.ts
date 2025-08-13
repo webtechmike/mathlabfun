@@ -16,7 +16,7 @@ export const game4Slice = createSlice({
         currentAnswer: "",
         correct: false,
         helpCount: 0,
-        winningStreak: 0,
+        scoreStreak: 0, // Renamed from winningStreak
         superStreak: 0,
         showHint: false,
         decision: "",
@@ -46,8 +46,8 @@ export const game4Slice = createSlice({
         setSuperStreak: (state, action) => {
             state.superStreak = action.payload;
         },
-        setWinningStreak: (state, action) => {
-            state.winningStreak = action.payload;
+        setScoreStreak: (state, action) => {
+            state.scoreStreak = action.payload;
         },
     },
 });
@@ -60,7 +60,8 @@ export const {
     setShowHint,
     setHelpCount,
     setCorrect,
-    setWinningStreak,
+    setScoreStreak,
+    setSuperStreak,
 } = game4Slice.actions;
 
 export default game4Slice.reducer;

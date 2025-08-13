@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useFocus } from "../../hooks";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -9,13 +9,23 @@ import {
     setShowHint,
     setHelpCount,
     setCorrect,
-    setWinningStreak,
+    setScoreStreak,
 } from "../../app/features/game4Slice";
+import {
+    addSpacebucks,
+    updateTotalCorrectAnswers,
+    updateTotalQuestionsAnswered,
+} from "../../app/features/userSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCircleQuestion,
     faFireFlameCurved,
 } from "@fortawesome/free-solid-svg-icons";
+import {
+    updateUserScoreStreak,
+    addSpacebucksToUser,
+    updateUserStats,
+} from "../../services/firebase";
 
 import "./game4.scss";
 import Spaceship from "../Spaceship";
@@ -36,8 +46,12 @@ function Game4(props: GameProps) {
 
     const [questionReset, setQuestionReset] = useState<boolean>(false);
     const [lastQuestion, setLastQuestion] = useState<string>("");
+    const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
     const dispatch = useDispatch();
     const resetFocus = useFocus("answer"); // resets cursor focus to input with id "answer"
+
+    // Use ref to store current user data to avoid dependency issues
+    const currentUserRef = useRef<any>(null);
 
     const {
         currentQuestion,
@@ -46,12 +60,16 @@ function Game4(props: GameProps) {
         correct,
         helpCount,
         showHint,
+        scoreStreak,
         decision,
-        superStreak,
-        winningStreak,
     } = useSelector((state: any) => state.game);
 
     const { currentUser } = useSelector((state: any) => state.user);
+
+    // Update ref when currentUser changes
+    useEffect(() => {
+        currentUserRef.current = currentUser;
+    }, [currentUser]);
 
     const generateQuestion = useCallback(() => {
         let newQuestion: any;
@@ -122,7 +140,7 @@ function Game4(props: GameProps) {
         dispatch(setCurrentQuestion(newQuestion));
 
         return newQuestion;
-    }, [lastQuestion, decision, dispatch]);
+    }, [lastQuestion, dispatch]);
 
     const generateHint = (answer: string) => {
         const theAnswer = parseInt(answer);
@@ -159,19 +177,173 @@ function Game4(props: GameProps) {
         dispatch(setHelpCount(0));
     };
 
+    // Calculate spacebucks reward based on operation type and streak status
+    const calculateReward = (
+        operation: string,
+        isSuperStreakActive: boolean
+    ) => {
+        let baseReward = 0;
+
+        switch (operation) {
+            case "addition":
+                baseReward = 1; // 1 spacebuck for addition
+                break;
+            case "subtraction":
+                baseReward = 2; // 2 spacebucks for subtraction
+                break;
+            case "multiplication":
+                baseReward = 3; // 3 spacebucks for multiplication
+                break;
+            default:
+                baseReward = 1;
+        }
+
+        // Double rewards if super streak is active (dailyStreak >= 3)
+        if (isSuperStreakActive) {
+            baseReward *= 2;
+        }
+
+        return baseReward;
+    };
+
+    // Handle correct answer and rewards
+    const handleCorrectAnswer = useCallback(
+        async (currentDecision: string) => {
+            if (!currentUserRef.current.isLoggedIn) return;
+
+            const newScoreStreak = scoreStreak + 1;
+            const currentBestStreak =
+                currentUserRef.current.bestScoreStreak || 0;
+            const newBestStreak = Math.max(currentBestStreak, newScoreStreak);
+            const isSuperStreakActive = currentUserRef.current.dailyStreak >= 3;
+            const reward = calculateReward(
+                currentDecision,
+                isSuperStreakActive
+            );
+
+            // Batch state updates to prevent cascading re-renders
+            const updates = {
+                scoreStreak: newScoreStreak,
+                bestScoreStreak: newBestStreak,
+                spacebucks: (currentUserRef.current.spacebucks || 0) + reward,
+                totalCorrectAnswers:
+                    (currentUserRef.current.totalCorrectAnswers || 0) + 1,
+                totalQuestionsAnswered:
+                    (currentUserRef.current.totalQuestionsAnswered || 0) + 1,
+            };
+
+            // Update local state in batch
+            dispatch(setScoreStreak(updates.scoreStreak));
+            dispatch(addSpacebucks(reward));
+            dispatch(updateTotalCorrectAnswers(updates.totalCorrectAnswers));
+            dispatch(
+                updateTotalQuestionsAnswered(updates.totalQuestionsAnswered)
+            );
+
+            // Update Firebase
+            await updateUserScoreStreak(
+                currentUserRef.current.uid,
+                updates.scoreStreak,
+                updates.bestScoreStreak
+            );
+            await addSpacebucksToUser(currentUserRef.current.uid, reward);
+            await updateUserStats(currentUserRef.current.uid, {
+                totalCorrectAnswers: updates.totalCorrectAnswers,
+                totalQuestionsAnswered: updates.totalQuestionsAnswered,
+            });
+
+            console.log(
+                `🎉 Correct! Earned ${reward} spacebucks! Score streak: ${newScoreStreak} (Best: ${newBestStreak})`
+            );
+        },
+        [scoreStreak, dispatch]
+    );
+
+    // Handle wrong answer
+    const handleWrongAnswer = useCallback(async () => {
+        if (!currentUserRef.current.isLoggedIn) return;
+
+        const newTotalQuestions =
+            (currentUserRef.current.totalQuestionsAnswered || 0) + 1;
+        const currentBestStreak = currentUserRef.current.bestScoreStreak || 0;
+
+        // Reset only the current score streak, keep the best streak
+        dispatch(setScoreStreak(0));
+        dispatch(updateTotalQuestionsAnswered(newTotalQuestions));
+
+        // Update Firebase - only reset current streak, preserve best streak
+        await updateUserScoreStreak(
+            currentUserRef.current.uid,
+            0,
+            currentBestStreak
+        );
+        await updateUserStats(currentUserRef.current.uid, {
+            totalQuestionsAnswered: newTotalQuestions,
+        });
+
+        console.log(
+            `❌ Wrong answer. Score streak reset to 0. (Best streak: ${currentBestStreak})`
+        );
+    }, [dispatch]);
+
+    // Create a simple question generator without dependencies
+    const createInitialQuestion = useCallback(() => {
+        const input1 = Math.floor(Math.random() * 11);
+        const input2 = Math.floor(Math.random() * 11);
+        const decider = Math.floor(Math.random() * 101);
+
+        let newQuestion: any;
+        let operation: string;
+
+        if (decider <= 33) {
+            operation = "addition";
+            newQuestion = {
+                input1,
+                input2,
+                operator: { symbol: "+", label: "addition" },
+                hint: generateHint((input1 + input2).toString()),
+            };
+            dispatch(setRealAnswer((input1 + input2).toString()));
+        } else if (decider >= 34 && decider < 66) {
+            operation = "subtraction";
+            newQuestion = {
+                input1,
+                input2,
+                operator: { symbol: "-", label: "subtraction" },
+                hint: generateHint((input1 - input2).toString()),
+            };
+            dispatch(setRealAnswer((input1 - input2).toString()));
+        } else {
+            operation = "multiplication";
+            newQuestion = {
+                input1,
+                input2,
+                operator: { symbol: "x", label: "multiplication" },
+                hint: generateHint((input1 * input2).toString()),
+            };
+            dispatch(setRealAnswer((input1 * input2).toString()));
+        }
+
+        dispatch(setDecision(operation));
+        dispatch(setCurrentQuestion(newQuestion));
+        return newQuestion;
+    }, [dispatch]);
+
     useEffect(() => {
         if (!questionReset) {
             resetFocus();
             dispatch(setCorrect(false));
-            currentQuestion.input1 === undefined && generateQuestion();
+            if (currentQuestion.input1 === undefined) {
+                createInitialQuestion();
+            }
             setQuestionReset(true);
         }
     }, [
         currentQuestion,
         dispatch,
-        generateQuestion,
         questionReset,
         resetFocus,
+        createInitialQuestion,
     ]);
     useEffect(() => {
         dispatch(
@@ -179,49 +351,41 @@ function Game4(props: GameProps) {
         );
     }, [currentAnswer, dispatch, realAnswer]);
 
-    // Track winning streak when answer is correct
+    // Handle answer submission (both correct and wrong)
     useEffect(() => {
-        if (correct && currentAnswer === realAnswer) {
-            dispatch(setWinningStreak((prevStreak: number) => prevStreak + 1));
-        }
-    }, [correct, currentAnswer, realAnswer, dispatch]);
+        if (!hasSubmitted) return;
 
-    // Reset streak when answer is wrong
-    useEffect(() => {
-        if (
-            currentAnswer !== "" &&
-            currentAnswer !== realAnswer &&
-            currentAnswer !== ""
-        ) {
-            dispatch(setWinningStreak(0));
+        if (correct) {
+            handleCorrectAnswer(decision);
+        } else if (currentAnswer !== "") {
+            handleWrongAnswer();
         }
-    }, [currentAnswer, realAnswer, dispatch]);
 
-    // Render winning streak display
-    const renderWinningStreak = () => {
-        if (winningStreak === 0) return null;
+        setHasSubmitted(false);
+    }, [
+        hasSubmitted,
+        correct,
+        currentAnswer,
+        decision,
+        handleCorrectAnswer,
+        handleWrongAnswer,
+    ]);
+
+    // Render score streak display
+    const renderScoreStreak = () => {
+        if (scoreStreak === 0) return null;
 
         return (
-            <div className="winning-streak-container">
-                <div className="streak-fire">
+            <div className="score-streak-container">
+                <div className="streak-header">
                     <FontAwesomeIcon icon={faFireFlameCurved} />
+                    <span className="streak-label">Score Streak!</span>
                 </div>
-                <div className="streak-info">
-                    <span className="streak-label">🔥 Streak!</span>
-                    <span className="streak-count">{winningStreak}</span>
-                </div>
-                <div className="streak-answers">
-                    {(() => {
-                        const safeStreak = Math.min(
-                            Math.max(Number(winningStreak) || 0, 0),
-                            5
-                        );
-                        return Array.from({ length: safeStreak }, (_, i) => (
-                            <div key={i} className="correct-answer-badge">
-                                ✓
-                            </div>
-                        ));
-                    })()}
+                <div className="streak-count">{scoreStreak}</div>
+                <div className="best-streak-info">
+                    <span className="best-streak-label">
+                        🏆 Best: {currentUser.bestScoreStreak || 0}
+                    </span>
                 </div>
             </div>
         );
@@ -267,7 +431,7 @@ function Game4(props: GameProps) {
     return (
         <div>
             <div>{renderSuperStreak()}</div>
-            <div>{renderWinningStreak()}</div>
+            <div>{renderScoreStreak()}</div>
             <Spaceship />
             {currentQuestion && (
                 <div className="challenge">
@@ -294,6 +458,7 @@ function Game4(props: GameProps) {
                     <form
                         onSubmit={(e) => {
                             e.preventDefault();
+                            setHasSubmitted(true);
                             generateQuestion();
                             dispatch(setCurrentAnswer(""));
                         }}
@@ -318,6 +483,7 @@ function Game4(props: GameProps) {
                                 className="answer-button"
                                 disabled={!correct}
                                 onClick={() => {
+                                    setHasSubmitted(true);
                                     generateQuestion();
 
                                     // reset

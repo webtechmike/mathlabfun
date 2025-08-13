@@ -89,6 +89,38 @@ header {
     text-align: right;
 }
 
+.spacebucks-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: white;
+    font-weight: bold;
+    background: rgba(255, 215, 0, 0.2);
+    padding: 4px 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.spacebucks-icon {
+    font-size: 14px;
+    animation: spacebucksGlow 2s ease-in-out infinite alternate;
+}
+
+.spacebucks-count {
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes spacebucksGlow {
+    0% {
+        filter: brightness(1) drop-shadow(0 0 2px rgba(255, 215, 0, 0.5));
+    }
+    100% {
+        filter: brightness(1.2) drop-shadow(0 0 4px rgba(255, 215, 0, 0.8));
+    }
+}
+
 .streak-info {
     display: flex;
     align-items: center;

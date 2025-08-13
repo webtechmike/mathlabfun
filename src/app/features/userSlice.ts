@@ -6,12 +6,14 @@ export const userSlice = createSlice({
         currentUser: {
             uid: "",
             name: "",
-            winningStreak: 0,
+            scoreStreak: 0, // Current consecutive correct answers
+            bestScoreStreak: 0, // Best streak ever achieved
             superStreak: 0,
             dailyStreak: 0,
             lastLoginDate: null,
             totalCorrectAnswers: 0,
             totalQuestionsAnswered: 0,
+            spacebucks: 0, // New field for tracking earnings
             isLoggedIn: false,
             isNewSignUp: false,
         },
@@ -35,16 +37,44 @@ export const userSlice = createSlice({
         updateSuperStreak: (state, action) => {
             state.currentUser.superStreak = action.payload;
         },
+        updateScoreStreak: (state, action) => {
+            state.currentUser.scoreStreak = action.payload;
+            // Update best streak if current streak is higher
+            if (action.payload > state.currentUser.bestScoreStreak) {
+                state.currentUser.bestScoreStreak = action.payload;
+            }
+        },
+        updateBestScoreStreak: (state, action) => {
+            state.currentUser.bestScoreStreak = action.payload;
+        },
+        updateSpacebucks: (state, action) => {
+            state.currentUser.spacebucks = action.payload;
+        },
+        addSpacebucks: (state, action) => {
+            state.currentUser.spacebucks += action.payload;
+        },
+        updateTotalCorrectAnswers: (state, action) => {
+            state.currentUser.totalCorrectAnswers = action.payload;
+        },
+        updateTotalQuestionsAnswered: (state, action) => {
+            state.currentUser.totalQuestionsAnswered = action.payload;
+        },
     },
 });
 
-export const { 
-    setCurrentUser, 
-    setIsNewSignUp, 
-    setIsLoggedIn, 
-    updateDailyStreak, 
-    updateLastLoginDate, 
-    updateSuperStreak 
+export const {
+    setCurrentUser,
+    setIsNewSignUp,
+    setIsLoggedIn,
+    updateDailyStreak,
+    updateLastLoginDate,
+    updateSuperStreak,
+    updateScoreStreak,
+    updateBestScoreStreak,
+    updateSpacebucks,
+    addSpacebucks,
+    updateTotalCorrectAnswers,
+    updateTotalQuestionsAnswered,
 } = userSlice.actions;
 
 export default userSlice.reducer;
@@ -52,12 +82,14 @@ export default userSlice.reducer;
 export interface User {
     uid: string;
     name: string;
-    winningStreak: number;
+    scoreStreak: number;
+    bestScoreStreak: number;
     superStreak: number;
     dailyStreak: number;
     lastLoginDate: Date | null;
     totalCorrectAnswers: number;
     totalQuestionsAnswered: number;
+    spacebucks: number;
     isLoggedIn: boolean;
     isNewSignUp: boolean;
 }

@@ -1,61 +1,37 @@
-import { firebaseConfig } from "../../.firebaseConfig";
-
-import { initializeApp } from "firebase/app";
-import {
-    GoogleAuthProvider,
-    getAuth,
-    signInWithPopup,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    sendPasswordResetEmail,
-    signOut,
-    onAuthStateChanged,
-} from "firebase/auth";
-
-import {
-    getFirestore,
-    query,
-    getDocs,
-    collection,
-    where,
-    addDoc,
-} from "firebase/firestore";
-
 import {
     useState,
+    useCallback,
     useRef,
     useEffect,
-    useCallback,
     SyntheticEvent,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../../services/firebase";
 import {
-    UserState,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+} from "firebase/auth";
+import {
     setCurrentUser,
     setIsNewSignUp,
     setIsLoggedIn,
-    updateDailyStreak,
-    updateSuperStreak,
-    updateLastLoginDate,
 } from "../../app/features/userSlice";
 import {
     checkAndUpdateDailyStreak,
+    getUserData,
     signInWithGoogle,
 } from "../../services/firebase";
 
 import "./login.scss";
 
 function Login() {
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
     const email = useRef<HTMLInputElement>(null);
     const password = useRef<HTMLInputElement>(null);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { currentUser } = useSelector((state: UserState) => state.user);
+    const { currentUser } = useSelector((state: any) => state.user);
     const [errorMessage, setErrorMessage] = useState<string>("");
 
     const handleGoogleSignIn = async () => {
@@ -64,11 +40,17 @@ function Login() {
             const user = auth.currentUser;
             if (user) {
                 const streakData = await checkAndUpdateDailyStreak(user.uid);
-                dispatch(setCurrentUser(user));
+                const userData = await getUserData(user.uid);
+
+                dispatch(
+                    setCurrentUser({
+                        ...user,
+                        ...userData,
+                        dailyStreak: streakData.dailyStreak,
+                        superStreak: streakData.superStreak,
+                    })
+                );
                 dispatch(setIsLoggedIn(true));
-                dispatch(updateDailyStreak(streakData.dailyStreak));
-                dispatch(updateSuperStreak(streakData.superStreak));
-                dispatch(updateLastLoginDate(new Date().toISOString()));
                 navigate("/game");
             }
         } catch (err: unknown) {
@@ -108,11 +90,18 @@ function Login() {
                         user.uid
                     );
 
-                    dispatch(setCurrentUser(user));
+                    // Get full user data including spacebucks
+                    const userData = await getUserData(user.uid);
+
+                    dispatch(
+                        setCurrentUser({
+                            ...user,
+                            ...userData,
+                            dailyStreak: streakData.dailyStreak,
+                            superStreak: streakData.superStreak,
+                        })
+                    );
                     dispatch(setIsLoggedIn(true));
-                    dispatch(updateDailyStreak(streakData.dailyStreak));
-                    dispatch(updateSuperStreak(streakData.superStreak));
-                    dispatch(updateLastLoginDate(new Date().toISOString()));
 
                     navigate("/game"); // Redirect to dashboard after successful signup
                 } catch (err: unknown) {
@@ -145,11 +134,18 @@ function Login() {
                         user.uid
                     );
 
-                    dispatch(setCurrentUser(user));
+                    // Get full user data including spacebucks
+                    const userData = await getUserData(user.uid);
+
+                    dispatch(
+                        setCurrentUser({
+                            ...user,
+                            ...userData,
+                            dailyStreak: streakData.dailyStreak,
+                            superStreak: streakData.superStreak,
+                        })
+                    );
                     dispatch(setIsLoggedIn(true));
-                    dispatch(updateDailyStreak(streakData.dailyStreak));
-                    dispatch(updateSuperStreak(streakData.superStreak));
-                    dispatch(updateLastLoginDate(new Date().toISOString()));
 
                     navigate("/game"); // Redirect to dashboard after successful login
                 } catch (err: unknown) {
@@ -166,7 +162,7 @@ function Login() {
 
             currentUser.isNewSignUp ? handleSignUp() : handleSignin();
         },
-        [auth, currentUser.isNewSignUp, dispatch, navigate]
+        [currentUser.isNewSignUp, dispatch, navigate]
     );
 
     const toggleSignInType = useCallback(() => {
@@ -175,16 +171,19 @@ function Login() {
     }, [currentUser.isNewSignUp, dispatch]);
 
     useEffect(() => {
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, (user: any) => {
             console.log(
                 "🚀 ~ file: App.tsx ~ line 68 ~ onAuthStateChanged ~ user",
-                user,
-                currentUser
+                user
             );
-            // const userId = user && user.uid;
-            // dispatch(setCurrentUser(user));
+            if (user) {
+                dispatch(setCurrentUser(user));
+                dispatch(setIsLoggedIn(true));
+            } else {
+                dispatch(setIsLoggedIn(false));
+            }
         });
-    }, [auth, currentUser, dispatch]);
+    }, [dispatch]);
 
     return (
         <div className="login">
