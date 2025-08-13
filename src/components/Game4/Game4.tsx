@@ -312,8 +312,11 @@ function Game4(props: GameProps) {
                 totalCorrectAnswers: updates.totalCorrectAnswers,
                 totalQuestionsAnswered: updates.totalQuestionsAnswered,
             });
+
+            // Restart timer for the score streak continuation
+            startTimer();
         },
-        [scoreStreak, dispatch, stopTimer]
+        [scoreStreak, dispatch, stopTimer, startTimer]
     );
 
     // Handle wrong answer
