@@ -22,6 +22,7 @@ import {
     faCircleQuestion,
     faFireFlameCurved,
     faClock,
+    faUserAstronaut,
 } from "@fortawesome/free-solid-svg-icons";
 import {
     updateUserScoreStreak,
@@ -30,6 +31,7 @@ import {
 } from "../../services/firebase";
 import "./game4.scss";
 import Spaceship from "../Spaceship";
+import SpacebucksIcon from "../SpacebucksIcon/SpacebucksIcon";
 
 type GameProps = {
     level: string;
@@ -51,6 +53,9 @@ function Game4(props: GameProps) {
     const [hasSubmitted, setHasSubmitted] = useState<boolean>(false);
     const [timeLeft, setTimeLeft] = useState(30);
     const [isTimerRunning, setIsTimerRunning] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+    const [showScoreStreak, setShowScoreStreak] = useState(false);
+    const [showUserHeader, setShowUserHeader] = useState(false);
 
     const dispatch = useDispatch();
     const resetFocus = useFocus("answer"); // resets cursor focus to input with id "answer"
@@ -72,6 +77,18 @@ function Game4(props: GameProps) {
     } = useSelector((state: any) => state.game);
 
     const { currentUser } = useSelector((state: any) => state.user);
+
+    // Check if mobile on mount and resize
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
 
     // Timer effect
     useEffect(() => {
@@ -518,6 +535,56 @@ function Game4(props: GameProps) {
 
     // Render score streak display
     const renderScoreStreak = () => {
+        if (isMobile) {
+            return (
+                <div className="mobile-score-streak">
+                    <button
+                        className="mobile-streak-toggle"
+                        onClick={() => setShowScoreStreak(!showScoreStreak)}
+                    >
+                        <FontAwesomeIcon icon={faFireFlameCurved} />
+                        {scoreStreak > 0 && (
+                            <span className="streak-badge">{scoreStreak}</span>
+                        )}
+                    </button>
+                    {showScoreStreak && (
+                        <div className="mobile-streak-dropdown">
+                            <div className="streak-header">
+                                <FontAwesomeIcon icon={faFireFlameCurved} />
+                                <span className="streak-label">
+                                    Score Streak!
+                                </span>
+                            </div>
+                            <div className="streak-count">{scoreStreak}</div>
+                            <div className="best-streak-info">
+                                <span className="best-streak-label">
+                                    🏆 Best: {currentUser.bestScoreStreak || 0}
+                                </span>
+                            </div>
+                            <div className="timer-section">
+                                <FontAwesomeIcon
+                                    icon={faClock}
+                                    className="timer-icon"
+                                />
+                                <span className="timer-text">Time:</span>
+                                <span
+                                    className={`timer-countdown ${
+                                        timeLeft <= 10
+                                            ? "critical"
+                                            : timeLeft <= 15
+                                            ? "warning"
+                                            : ""
+                                    }`}
+                                >
+                                    {timeLeft}s
+                                </span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
         return (
             <div className="score-streak-container">
                 <div className="streak-header">
@@ -587,11 +654,48 @@ function Game4(props: GameProps) {
         );
     };
 
+    // Render mobile user header
+    const renderMobileUserHeader = () => {
+        if (!isMobile || !currentUser.isLoggedIn) return null;
+
+        const isDoubleRewards = currentUser.dailyStreak >= 3;
+        const rewardStatus = isDoubleRewards
+            ? "Double Rewards"
+            : "Regular Rewards";
+        const rewardIcon = isDoubleRewards ? "🚀" : "⭐";
+
+        return (
+            <div className="mobile-user-header">
+                <button
+                    className="mobile-user-toggle"
+                    onClick={() => setShowUserHeader(!showUserHeader)}
+                >
+                    <FontAwesomeIcon icon={faUserAstronaut} />
+                </button>
+                {showUserHeader && (
+                    <div className="mobile-user-dropdown">
+                        <div className="user-info">
+                            <div className="spacebucks-info">
+                                <SpacebucksIcon />
+                                <span className="spacebucks-count">
+                                    {currentUser.spacebucks || 0}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     return (
-        <div>
-            <div>{renderSuperStreak()}</div>
+        <div className={`game4-container ${isMobile ? "mobile" : ""}`}>
+            {!isMobile && <div>{renderSuperStreak()}</div>}
             <div>{renderScoreStreak()}</div>
-            <Spaceship />
+            {renderMobileUserHeader()}
+            <div className={`spaceship-container ${isMobile ? "mobile" : ""}`}>
+                <Spaceship />
+            </div>
             {currentQuestion && (
                 <div className="challenge">
                     <div className="current-question">

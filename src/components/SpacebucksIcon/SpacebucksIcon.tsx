@@ -4,19 +4,37 @@ import { useState } from "react";
 
 import "./spacebucksicon.scss";
 
-function SpacebucksIcon() {
+interface SpacebucksIconProps {
+    showTooltip?: boolean;
+}
+
+function SpacebucksIcon({
+    showTooltip: enableTooltip = false,
+}: SpacebucksIconProps) {
     const [showTooltip, setShowTooltip] = useState(false);
+
+    const handleMouseEnter = () => {
+        if (enableTooltip) {
+            setShowTooltip(true);
+        }
+    };
+
+    const handleMouseLeave = () => {
+        if (enableTooltip) {
+            setShowTooltip(false);
+        }
+    };
 
     return (
         <div
             className="spacebucks-icon-container"
-            onMouseEnter={() => setShowTooltip(true)}
-            onMouseLeave={() => setShowTooltip(false)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
         >
             <div className="spacebucks-icon">
                 <FontAwesomeIcon size="2x" icon={faMeteor} />
             </div>
-            {showTooltip && (
+            {enableTooltip && showTooltip && (
                 <div className="spacebucks-tooltip">
                     <h3>Spacebucks Rewards</h3>
                     <div className="reward-rules">

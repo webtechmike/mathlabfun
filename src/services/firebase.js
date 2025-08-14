@@ -48,12 +48,43 @@ const signInWithGoogle = async () => {
         } else {
             // Update existing user's streak data
             const userDoc = docs.docs[0];
-            const streakData = await checkAndUpdateDailyStreak(user.uid);
-            await updateDoc(userDoc.ref, {
-                dailyStreak: streakData.dailyStreak,
-                superStreak: streakData.superStreak,
-                lastLoginDate: new Date().toISOString(),
-            });
+            const userData = userDoc.data();
+            const today = new Date().toDateString();
+            const lastLogin = userData.lastLoginDate
+                ? new Date(userData.lastLoginDate).toDateString()
+                : null;
+
+            let newDailyStreak = userData.dailyStreak || 0;
+            let newSuperStreak = userData.superStreak || 0;
+
+            // Only update streak if user hasn't logged in today
+            if (lastLogin !== today) {
+                if (
+                    lastLogin ===
+                    new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString()
+                ) {
+                    // User logged in yesterday, increment streak
+                    newDailyStreak += 1;
+                } else if (lastLogin !== null) {
+                    // User missed a day, reset streak
+                    newDailyStreak = 1;
+                    newSuperStreak = 0;
+                } else {
+                    // First time login
+                    newDailyStreak = 1;
+                }
+
+                // Super streak is activated when daily streak reaches 3
+                if (newDailyStreak >= 3) {
+                    newSuperStreak = newDailyStreak;
+                }
+
+                await updateDoc(userDoc.ref, {
+                    dailyStreak: newDailyStreak,
+                    superStreak: newSuperStreak,
+                    lastLoginDate: new Date().toISOString(),
+                });
+            }
         }
     } catch (err) {
         console.error(err);

@@ -203,33 +203,18 @@ function Login() {
     }, [currentUser.isNewSignUp, dispatch]);
 
     useEffect(() => {
-        onAuthStateChanged(auth, async (user: any) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user: any) => {
             console.log(
                 "🚀 ~ file: App.tsx ~ line 68 ~ onAuthStateChanged ~ user",
                 user
             );
+            
             if (user) {
                 // Check if we already have user data in Redux (from persistence)
                 if (currentUser.uid === user.uid && currentUser.isLoggedIn) {
                     console.log(
-                        "User data already persisted, syncing with Firebase..."
+                        "User data already persisted, skipping Firebase sync to prevent infinite loop..."
                     );
-
-                    // Sync persisted data with Firebase to ensure it's up-to-date
-                    const streakData = await checkAndUpdateDailyStreak(
-                        user.uid
-                    );
-                    const userData = await getUserData(user.uid);
-
-                    // Update Redux with the latest data from Firebase
-                    const updatedUserState = {
-                        ...currentUser,
-                        ...userData,
-                        dailyStreak: streakData.dailyStreak,
-                        superStreak: streakData.superStreak,
-                    };
-
-                    dispatch(setCurrentUser(updatedUserState));
                     return;
                 }
 
@@ -254,6 +239,9 @@ function Login() {
                 dispatch(setIsLoggedIn(false));
             }
         });
+
+        // Cleanup function to unsubscribe from auth state changes
+        return () => unsubscribe();
     }, [dispatch, currentUser.uid, currentUser.isLoggedIn, currentUser]);
 
     return (

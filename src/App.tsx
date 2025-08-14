@@ -21,20 +21,29 @@ import { faUserAstronaut } from "@fortawesome/free-solid-svg-icons";
 import { faUserSecret } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import SpacebucksIcon from "./components/SpacebucksIcon/SpacebucksIcon";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
-// type ProtectedRouteProps = ReactFragment & {
-//     isLoggedIn: boolean;
-//     children: ReactNode;
-// };
-// const ProtectedRoute = ({ isLoggedIn, children }: ProtectedRouteProps) => {
-//     if (!isLoggedIn) {
-//         return <Navigate to="/" replace />;
-//     }
-//     return <div>{children}</div>;
-// };
-
-function App() {
+// Component to handle mobile detection inside Router context
+function AppContent() {
     const { currentUser } = useSelector((state: UserState) => state.user);
+    const [isMobile, setIsMobile] = useState(false);
+    const location = useLocation();
+
+    // Check if mobile on mount and resize
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
+
+    // Hide desktop header on mobile when in game
+    const shouldHideHeader = isMobile && location.pathname === "/game";
 
     const renderUserHeader = () => {
         if (!currentUser.isLoggedIn) {
@@ -45,11 +54,11 @@ function App() {
             );
         }
 
-        const isDoubleRewards = currentUser.dailyStreak >= 3;
-        const rewardStatus = isDoubleRewards
-            ? "Double Rewards"
-            : "Regular Rewards";
-        const rewardIcon = isDoubleRewards ? "🚀" : "⭐";
+        // const isDoubleRewards = currentUser.dailyStreak >= 3;
+        // const rewardStatus = isDoubleRewards
+        //     ? "Double Rewards"
+        //     : "Regular Rewards";
+        // const rewardIcon = isDoubleRewards ? "🚀" : "⭐";
 
         return (
             <div className="user-header">
@@ -60,16 +69,6 @@ function App() {
                             {currentUser.spacebucks || 0}
                         </span>
                     </div>
-                    <div className="streak-info">
-                        <span className="streak-label">🔥 SuperStreak</span>
-                        <span className="streak-count">
-                            {currentUser.superStreak || 0}
-                        </span>
-                    </div>
-                    <div className="reward-status">
-                        <span className="reward-icon">{rewardIcon}</span>
-                        <span className="reward-text">{rewardStatus}</span>
-                    </div>
                 </div>
                 <Link to="/game">
                     <FontAwesomeIcon size="2x" icon={faUserAstronaut} />
@@ -79,25 +78,33 @@ function App() {
     };
 
     return (
+        <>
+            {!shouldHideHeader && <header>{renderUserHeader()}</header>}
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route
+                    path="/game"
+                    element={
+                        currentUser.isLoggedIn ? (
+                            <Game4 level="1" />
+                        ) : (
+                            <Navigate to="/" />
+                        )
+                    }
+                />
+            </Routes>
+            <footer>
+                <span className="copyright">&copy; Mathlab.fun</span>
+            </footer>
+        </>
+    );
+}
+
+function App() {
+    return (
         <div className="App stars">
             <Router>
-                <header>{renderUserHeader()}</header>
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route
-                        path="/game"
-                        element={
-                            currentUser.isLoggedIn ? (
-                                <Game4 level="1" />
-                            ) : (
-                                <Navigate to="/" />
-                            )
-                        }
-                    />
-                </Routes>
-                <footer>
-                    <span className="copyright">&copy; Mathlab.fun</span>
-                </footer>
+                <AppContent />
             </Router>
         </div>
     );

@@ -49,7 +49,6 @@ header {
 
     a {
         color: whitesmoke;
-        height: 120px;
     }
 }
 
@@ -58,17 +57,6 @@ header {
     display: flex;
     align-items: center;
     gap: 20px;
-    background: linear-gradient(
-        135deg,
-        rgba(102, 126, 234, 0.9) 0%,
-        rgba(118, 75, 162, 0.9) 100%
-    );
-    border-radius: 25px;
-    padding: 15px 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    animation: headerGlow 2s ease-in-out infinite alternate;
 }
 
 @keyframes headerGlow {
@@ -84,21 +72,13 @@ header {
 
 .user-info {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    text-align: right;
 }
 
 .spacebucks-info {
     display: flex;
     align-items: center;
-    gap: 6px;
     color: white;
     font-weight: bold;
-    background: rgba(255, 215, 0, 0.2);
-    padding: 4px 8px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 215, 0, 0.3);
 }
 
 .spacebucks-icon {
@@ -171,5 +151,54 @@ footer {
     bottom: 50px;
 
     .copyright {
+    }
+}
+
+// Mobile responsive styles
+@media (max-width: 768px) {
+    header {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+
+        a {
+            color: whitesmoke;
+            height: 80px;
+        }
+    }
+
+    .user-header {
+        padding: 10px 15px;
+        gap: 15px;
+    }
+
+    .user-info {
+        gap: 6px;
+    }
+
+    .spacebucks-info {
+        padding: 3px 6px;
+        font-size: 14px;
+    }
+
+    .spacebucks-count {
+        font-size: 14px;
+    }
+
+    .streak-label {
+        font-size: 10px;
+    }
+
+    .streak-count {
+        font-size: 14px;
+        padding: 1px 4px;
+    }
+
+    .reward-status {
+        font-size: 9px;
+    }
+
+    .reward-icon {
+        font-size: 12px;
     }
 }

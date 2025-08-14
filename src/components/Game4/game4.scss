@@ -1,3 +1,14 @@
+.challenge {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    width: 100%;
+    max-width: 800px;
+    padding: 0 20px;
+}
+
 .current-question {
     margin: 40px auto;
     display: flex;
@@ -420,5 +431,360 @@
     }
     100% {
         opacity: 1;
+    }
+}
+
+// Mobile Styles
+.game4-container.mobile {
+    position: relative;
+    min-height: 100vh;
+    padding-top: 20px;
+}
+
+.spaceship-container {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    max-width: calc(100vw - 40px);
+    display: flex;
+    justify-content: center;
+}
+
+.spaceship-container .spaceship {
+    max-width: 100%;
+    transform: scale(1.2);
+    transform-origin: center;
+}
+
+.spaceship-container.mobile {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    scale: 0.8;
+    max-width: calc(100vw - 40px);
+}
+
+// Mobile Score Streak Styles
+.mobile-score-streak {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.mobile-streak-toggle {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid rgba(255, 107, 107, 0.6);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.9);
+        border-color: rgba(255, 107, 107, 0.8);
+        transform: scale(1.1);
+    }
+
+    .fa-fire-flame-curved {
+        font-size: 1.5rem;
+        color: #ff6b6b;
+        animation: fireFlicker 2.5s ease-in-out infinite alternate;
+    }
+
+    .streak-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #ff6b6b;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+        border: 2px solid white;
+    }
+}
+
+.mobile-streak-dropdown {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    background: rgba(0, 0, 0, 0.95);
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 200px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 107, 107, 0.3);
+    animation: slideDown 0.3s ease-out;
+
+    .streak-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 15px;
+        color: white;
+        font-weight: bold;
+
+        .fa-fire-flame-curved {
+            font-size: 1.2rem;
+            color: #ff6b6b;
+        }
+
+        .streak-label {
+            font-size: 1rem;
+        }
+    }
+
+    .streak-count {
+        font-size: 2rem;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .best-streak-info {
+        margin-bottom: 15px;
+        text-align: center;
+
+        .best-streak-label {
+            font-size: 0.9rem;
+            color: #ffd700;
+            font-weight: bold;
+        }
+    }
+
+    .timer-section {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+
+        .timer-icon {
+            color: #ff6b6b;
+            font-size: 1rem;
+        }
+
+        .timer-text {
+            font-size: 0.9rem;
+        }
+
+        .timer-countdown {
+            font-size: 1rem;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+
+            &.warning {
+                color: #ff6b6b;
+                animation: pulse 1s infinite;
+            }
+
+            &.critical {
+                color: #ff0000;
+                animation: pulse 0.5s infinite;
+            }
+        }
+    }
+}
+
+// Mobile User Header Styles
+.mobile-user-header {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.mobile-user-toggle {
+    background: linear-gradient(
+        135deg,
+        rgba(102, 126, 234, 0.9) 0%,
+        rgba(118, 75, 162, 0.9) 100%
+    );
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .fa-user-astronaut {
+        font-size: 1.5rem;
+        color: white;
+    }
+}
+
+.mobile-user-dropdown {
+    position: absolute;
+    top: 70px;
+    right: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(102, 126, 234, 0.95) 0%,
+        rgba(118, 75, 162, 0.95) 100%
+    );
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 200px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    animation: slideDown 0.3s ease-out;
+
+    .user-info {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        color: white;
+
+        .spacebucks-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            background: rgba(255, 215, 0, 0.2);
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+
+            .spacebucks-icon-container {
+                font-size: 1.2rem;
+            }
+
+            .spacebucks-count {
+                font-size: 1.1rem;
+                font-weight: bold;
+            }
+        }
+
+        .streak-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+
+            .streak-label {
+                font-size: 0.9rem;
+            }
+
+            .streak-count {
+                font-size: 1rem;
+                background: rgba(255, 255, 255, 0.2);
+                padding: 4px 8px;
+                border-radius: 6px;
+                min-width: 24px;
+                text-align: center;
+            }
+        }
+
+        .reward-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+
+            .reward-icon {
+                font-size: 1rem;
+            }
+
+            .reward-text {
+                font-size: 0.8rem;
+            }
+        }
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Mobile responsive adjustments
+@media (max-width: 768px) {
+    .challenge {
+        padding: 0 10px;
+        max-width: 100%;
+    }
+
+    .current-question {
+        margin: 20px auto;
+
+        h1 {
+            font-size: 3rem;
+        }
+    }
+
+    .help-icon {
+        right: -100px;
+        width: 40px;
+        height: 40px;
+        font-size: 2rem;
+    }
+
+    .hint {
+        padding: 20px;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+
+        .title {
+            font-size: 1.8rem;
+        }
+    }
+
+    .answer-input-box {
+        width: 150px;
+
+        label {
+            font-size: 1.5rem;
+        }
+    }
+
+    .answer-input {
+        font-size: 2.5rem;
+    }
+
+    .answer-button {
+        height: 60px;
+        font-size: 2rem;
+    }
+
+    // Hide desktop elements on mobile
+    .score-streak-container,
+    .super-streak-container {
+        display: none;
     }
 }

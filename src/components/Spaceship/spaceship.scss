@@ -1,16 +1,17 @@
 .spaceship {
-    transform: scale(1.2);
     animation: teetertotter 20s linear infinite;
     width: 425px;
     height: 125px;
     position: relative;
+    max-width: 100%;
+    box-sizing: border-box;
 
     .helmet {
         background-color: lighten(rgba(50, 215, 215, 0.6), 35%);
         border-radius: 50% 50% 0 0;
-        width: 70%;
+        width: 60%;
         height: 40%;
-        animation: oscillate 20s linear infinite;
+        animation: oscillate 10s linear infinite;
         position: relative;
         overflow: hidden;
 
@@ -79,16 +80,13 @@
 
 @keyframes oscillate {
     0% {
-        transform: translate(-10%);
-        width: 425px;
+        transform: translate(32%);
     }
     50% {
-        transform: translate(10%);
-        width: 525px;
+        transform: translate(35%);
     }
     100% {
-        transform: translate(-10%);
-        width: 425px;
+        transform: translate(32%);
     }
 }
 
