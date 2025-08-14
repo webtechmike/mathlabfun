@@ -758,6 +758,9 @@ function Game4(props: GameProps) {
                                     dispatch(setCurrentAnswer(""));
                                     dispatch(setShowHint(false));
                                     resetHelpCount();
+
+                                    // Immediately refocus the input field to prevent keyboard closing on mobile
+                                    setTimeout(() => resetFocus(), 0);
                                 }}
                             >
                                 NEXT
