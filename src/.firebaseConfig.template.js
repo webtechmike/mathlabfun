@@ -1,12 +1,11 @@
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Template for Firebase configuration
+// Copy this file to .firebaseConfig.js and replace the placeholder values with your actual Firebase config
+// You can get these values from your Firebase Console > Project Settings > General > Your apps
 
 // Check if we're in development or production
 const isDevelopment = process.env.NODE_ENV === "development";
 
 // Firebase configuration with fallbacks for local development
-// IMPORTANT: Replace these placeholder values with your actual Firebase config
-// You can get these values from your Firebase Console > Project Settings > General > Your apps
 export const firebaseConfig = {
     apiKey:
         process.env.REACT_APP_FIREBASE_API_KEY ||
