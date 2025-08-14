@@ -4,23 +4,21 @@ This project uses environment variables for Firebase configuration with conditio
 
 ## Environment Handling
 
-The Firebase configuration automatically handles different environments:
+The Firebase configuration now uses environment variables for all environments:
 
--   **Development**: Uses hardcoded fallback values for local development
--   **Production**: Uses environment variables from Netlify
+-   **Development**: Uses environment variables from `.env` file
+-   **Production**: Uses environment variables from deployment platform (Netlify, Vercel, etc.)
 
 ## Local Development
 
-For local development, the Firebase configuration is already set up in `src/.firebaseConfig.js` with the correct credentials. The app should work out of the box.
-
-If you want to use different Firebase credentials for development, you can:
+For local development, you need to set up your Firebase configuration:
 
 1. Copy the Firebase config template: `cp src/.firebaseConfig.template.js src/.firebaseConfig.js`
 2. Copy the Firebase project template: `cp .firebaserc.template .firebaserc`
-3. Replace the placeholder values in both files with your actual Firebase configuration
+3. Create a `.env` file in the root directory with your Firebase credentials (see below)
 4. You can get these values from your Firebase Console > Project Settings > General > Your apps
 
-Alternatively, you can create a `.env` file in the root directory with the following variables:
+**Important**: The Firebase configuration file is now in `.gitignore` to prevent exposing credentials. You must set up environment variables for the app to work.
 
 ```env
 REACT_APP_FIREBASE_API_KEY=your_api_key_here
@@ -53,4 +51,4 @@ REACT_APP_FIREBASE_MEASUREMENT_ID=your_measurement_id_here
 -   All environment variables must be prefixed with `REACT_APP_` to be accessible in the React application
 -   The `.env` file should be added to `.gitignore` to keep sensitive information out of version control
 -   Never commit API keys or other sensitive information to your repository
--   The application will work locally without any environment variables due to fallback values
+-   **The application requires environment variables to be set for both development and production**

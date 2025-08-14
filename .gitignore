@@ -107,6 +107,7 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 .firebaserc
+src/.firebaseConfig.js
 
 # TypeScript
 *.tsbuildinfo
