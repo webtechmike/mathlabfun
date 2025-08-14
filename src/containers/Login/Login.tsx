@@ -254,7 +254,7 @@ function Login() {
                 dispatch(setIsLoggedIn(false));
             }
         });
-    }, [dispatch, currentUser.uid, currentUser.isLoggedIn]);
+    }, [dispatch, currentUser.uid, currentUser.isLoggedIn, currentUser]);
 
     return (
         <div className="login">

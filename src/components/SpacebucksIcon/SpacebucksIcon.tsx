@@ -18,7 +18,7 @@ function SpacebucksIcon() {
             </div>
             {showTooltip && (
                 <div className="spacebucks-tooltip">
-                    <h3>💫 Spacebucks Rewards</h3>
+                    <h3>Spacebucks Rewards</h3>
                     <div className="reward-rules">
                         <div className="rule">
                             <span className="operation">➕ Addition:</span>
@@ -36,9 +36,15 @@ function SpacebucksIcon() {
                         </div>
                         <div className="rule">
                             <span className="operation">
-                                🔢 Negative Numbers:
+                                🔢 Negative Results:
                             </span>
-                            <span className="reward">+1 bonus spacebuck</span>
+                            <span className="reward">
+                                +1 bonus spacebuck (higher levels)
+                            </span>
+                        </div>
+                        <div className="rule">
+                            <span className="operation">📈 Level Bonus:</span>
+                            <span className="reward">+1 per 2 levels</span>
                         </div>
                     </div>
                     <div className="super-streak-info">

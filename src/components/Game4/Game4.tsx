@@ -132,9 +132,10 @@ function Game4(props: GameProps) {
         const maxAttempts = 50; // Prevent infinite loops
 
         do {
-            // Generate numbers from -10 to 10 to include negative numbers
-            const input1 = Math.floor(Math.random() * 21) - 10;
-            const input2 = Math.floor(Math.random() * 21) - 10;
+            // Generate numbers from 0 to 10 for current level (easier)
+            // Negative numbers will be introduced in higher levels
+            const input1 = Math.floor(Math.random() * 11);
+            const input2 = Math.floor(Math.random() * 11);
             const decider = Math.floor(Math.random() * 101);
 
             const decide = (decidedBy: number): string => {
@@ -171,7 +172,7 @@ function Game4(props: GameProps) {
                     hint: generateHint((input1 - input2).toString()),
                 };
                 dispatch(setRealAnswer((input1 - input2).toString()));
-            } else if (decider >= 67 && decider < 101) {
+            } else if (operation === "multiplication") {
                 newQuestion = {
                     input1,
                     input2,
@@ -236,11 +237,12 @@ function Game4(props: GameProps) {
         dispatch(setHelpCount(0));
     };
 
-    // Calculate spacebucks reward based on operation type and streak status
+    // Calculate spacebucks reward based on operation type, streak status, and level
     const calculateReward = (
         operation: string,
         isSuperStreakActive: boolean,
-        currentQuestion: any
+        currentQuestion: any,
+        level: number = 1
     ): number => {
         let baseReward: number;
 
@@ -268,14 +270,44 @@ function Game4(props: GameProps) {
 
         console.log("Base reward:", baseReward);
 
-        // Add extra spacebuck if the problem includes negative numbers
-        if (
-            currentQuestion &&
-            (currentQuestion.input1 < 0 || currentQuestion.input2 < 0)
-        ) {
-            baseReward += 1;
+        // Add extra spacebuck if the result is negative (higher levels only)
+        if (currentQuestion && currentQuestion.operator) {
+            let result: number;
+            const input1 = currentQuestion.input1;
+            const input2 = currentQuestion.input2;
+
+            switch (currentQuestion.operator.label) {
+                case "addition":
+                    result = input1 + input2;
+                    break;
+                case "subtraction":
+                    result = input1 - input2;
+                    break;
+                case "multiplication":
+                    result = input1 * input2;
+                    break;
+                case "division":
+                    result = input1 / input2;
+                    break;
+                default:
+                    result = 0;
+            }
+
+            if (result < 0) {
+                baseReward += 1;
+                console.log(
+                    "Negative result bonus applied! New total:",
+                    baseReward
+                );
+            }
+        }
+
+        // Level-based bonus: Higher levels earn more spacebucks
+        const levelBonus = Math.floor(level / 2); // Every 2 levels adds +1 spacebuck
+        if (levelBonus > 0) {
+            baseReward += levelBonus;
             console.log(
-                "Negative number bonus applied! New total:",
+                `Level ${level} bonus applied! +${levelBonus} spacebucks. New total:`,
                 baseReward
             );
         }
@@ -309,10 +341,15 @@ function Game4(props: GameProps) {
             console.log("Daily Streak:", currentUserRef.current.dailyStreak);
             console.log("Answered Question:", answeredQuestion);
 
+            // Use the operation from the answered question instead of currentDecision
+            const operationFromQuestion =
+                answeredQuestion?.operator?.label || currentDecision;
+
             const reward = calculateReward(
-                currentDecision,
+                operationFromQuestion,
                 isSuperStreakActive,
-                answeredQuestion
+                answeredQuestion,
+                parseInt(props.level) || 1
             );
 
             // Batch state updates to prevent cascading re-renders
@@ -350,7 +387,7 @@ function Game4(props: GameProps) {
             // Restart timer for the score streak continuation
             startTimer();
         },
-        [scoreStreak, dispatch, stopTimer, startTimer]
+        [scoreStreak, dispatch, stopTimer, startTimer, props.level]
     );
 
     // Handle wrong answer
@@ -608,6 +645,9 @@ function Game4(props: GameProps) {
                                 disabled={!correct}
                                 onClick={() => {
                                     setHasSubmitted(true);
+                                    // Store the current question before generating a new one
+                                    answeredQuestionRef.current =
+                                        currentQuestion;
                                     generateQuestion();
 
                                     // reset
