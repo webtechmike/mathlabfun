@@ -11,7 +11,9 @@ The Firebase configuration automatically handles different environments:
 
 ## Local Development
 
-For local development, you need to set up your Firebase configuration:
+For local development, the Firebase configuration is already set up in `src/.firebaseConfig.js` with the correct credentials. The app should work out of the box.
+
+If you want to use different Firebase credentials for development, you can:
 
 1. Copy the Firebase config template: `cp src/.firebaseConfig.template.js src/.firebaseConfig.js`
 2. Copy the Firebase project template: `cp .firebaserc.template .firebaserc`

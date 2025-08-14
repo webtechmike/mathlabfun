@@ -10,23 +10,23 @@ const isDevelopment = process.env.NODE_ENV === "development";
 export const firebaseConfig = {
     apiKey:
         process.env.REACT_APP_FIREBASE_API_KEY ||
-        (isDevelopment ? "your_api_key_here" : ""),
+        "AIzaSyDVBYoVF3YLM4G9uSiaG6oGQ9uoztFxdxs",
     authDomain:
         process.env.REACT_APP_FIREBASE_AUTH_DOMAIN ||
-        (isDevelopment ? "your_project_id.firebaseapp.com" : ""),
+        "mathlabfun.firebaseapp.com",
     projectId:
         process.env.REACT_APP_FIREBASE_PROJECT_ID ||
-        (isDevelopment ? "your_project_id" : ""),
+        "mathlabfun",
     storageBucket:
         process.env.REACT_APP_FIREBASE_STORAGE_BUCKET ||
-        (isDevelopment ? "your_project_id.appspot.com" : ""),
+        "mathlabfun.appspot.com",
     messagingSenderId:
         process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID ||
-        (isDevelopment ? "your_messaging_sender_id" : ""),
+        "813261118335",
     appId:
         process.env.REACT_APP_FIREBASE_APP_ID ||
-        (isDevelopment ? "your_app_id" : ""),
+        "1:813261118335:web:3b3100da1997a1dd3f584a",
     measurementId:
         process.env.REACT_APP_FIREBASE_MEASUREMENT_ID ||
-        (isDevelopment ? "your_measurement_id" : ""),
+        "G-7GYFQSRB76",
 };
