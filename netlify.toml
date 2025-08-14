@@ -8,6 +8,8 @@
   CI = "false"
   # Note: Firebase environment variables must be set in Netlify dashboard
   # See ENVIRONMENT_SETUP.md for required variables
+  # Configure secrets scanning to ignore Firebase credentials (they're meant to be public)
+  SECRETS_SCAN_OMIT_KEYS = "REACT_APP_FIREBASE_API_KEY,REACT_APP_FIREBASE_AUTH_DOMAIN,REACT_APP_FIREBASE_PROJECT_ID,REACT_APP_FIREBASE_STORAGE_BUCKET,REACT_APP_FIREBASE_MESSAGING_SENDER_ID,REACT_APP_FIREBASE_APP_ID,REACT_APP_FIREBASE_MEASUREMENT_ID"
 
 [[redirects]]
   from = "/*"
